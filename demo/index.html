@@ -387,7 +387,7 @@ body {
 
   <!-- New Campaign -->
   <div class="px-4 mt-4 mb-4">
-    <button class="btn-primary w-full justify-center text-[12.5px]">
+    <button onclick="showView('marketing');showToast('New Campaign','Opening campaign builder…','ai')" class="btn-primary w-full justify-center text-[12.5px]">
       <span class="material-symbols-outlined text-[15px]">add</span>
       New Campaign
     </button>
@@ -422,10 +422,10 @@ body {
     <!-- Right: time + search + menu -->
     <div class="flex items-center gap-3">
       <div id="live-time" class="text-[11.5px] text-[#555] hidden lg:block"></div>
-      <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors">
+      <button onclick="openSearch()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors">
         <span class="material-symbols-outlined text-[18px]">search</span>
       </button>
-      <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors relative">
+      <button onclick="showView('notifications');setNavActive(document.getElementById('nav-notifications'))" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors relative">
         <span class="material-symbols-outlined text-[18px]">notifications</span>
         <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#c4c4c4]"></span>
       </button>
@@ -513,8 +513,8 @@ body {
         <div class="px-5 pt-4 pb-3 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,.05);">
           <h3 class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Agent Activity Summary</h3>
           <div class="flex items-center gap-3">
-            <a href="#" class="text-[11.5px] font-medium hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full log</a>
-            <button class="text-[11.5px] font-medium px-3 py-1.5 rounded-lg text-[#666]"
+            <a href="#" onclick="event.preventDefault();showToast('AI Activity Log','47 actions · opening full timeline','ai')" class="text-[11.5px] font-medium hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full log</a>
+            <button onclick="showToast('AI Agents','Managing 3 active agents: Outreach, Scoring, Matching','ai')" class="text-[11.5px] font-medium px-3 py-1.5 rounded-lg text-[#666]"
                     style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);">Manage agents</button>
           </div>
         </div>
@@ -747,7 +747,7 @@ body {
             </div>
             <div class="px-5 pb-4 pt-1 flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,.04);padding-top:12px;">
               <div class="text-[11px] text-[#888]"><span class="material-symbols-outlined text-[13px] align-middle" style="color:#71d7cd;">house</span> <span class="font-semibold" style="color:#71d7cd;">Sat Open House</span> · <span class="text-[#aaa]">8921 E Pinnacle Peak · 12–3p · 6 RSVPs</span></div>
-              <button class="btn-secondary text-[11px]" style="padding:5px 12px;">Full calendar</button>
+              <button onclick="showToast('Full Calendar','Thu Apr 19 · 3 showings · 1 open house · 1 consult','info')" class="btn-secondary text-[11px]" style="padding:5px 12px;">Full calendar</button>
             </div>
           </div>
         </div>
@@ -889,16 +889,16 @@ body {
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <button class="btn-primary">
+              <button onclick="leadAction('call','Brandon Allen','(351) 771-1090')" class="btn-primary">
                 <span class="material-symbols-outlined text-[14px]">phone</span> Call Now
               </button>
-              <button class="btn-secondary">
+              <button onclick="leadAction('text','Brandon Allen')" class="btn-secondary">
                 <span class="material-symbols-outlined text-[14px]">sms</span> Send Text
               </button>
-              <button class="btn-secondary">
+              <button onclick="leadAction('email','Brandon Allen','brandon.allen@gmail.com')" class="btn-secondary">
                 <span class="material-symbols-outlined text-[14px]">mail</span> Email
               </button>
-              <button class="btn-secondary">
+              <button onclick="leadAction('showing','Brandon Allen · 4891 E Sunrise Dr')" class="btn-secondary">
                 <span class="material-symbols-outlined text-[14px]">calendar_month</span> Schedule Showing
               </button>
               <button onclick="toggleWhy('w1',this)" class="btn-why ml-auto">
@@ -994,13 +994,13 @@ body {
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <button class="btn-primary" style="background:#3a3a3a;color:#e0e0e0;">
+              <button onclick="leadAction('text','Samuel Scott')" class="btn-primary" style="background:#3a3a3a;color:#e0e0e0;">
                 <span class="material-symbols-outlined text-[14px]">sms</span> Send Text
               </button>
-              <button class="btn-secondary">
+              <button onclick="leadAction('showing','Samuel Scott · 3488 Cedar St')" class="btn-secondary">
                 <span class="material-symbols-outlined text-[14px]">calendar_month</span> Schedule Showing
               </button>
-              <button class="btn-secondary">
+              <button onclick="leadAction('listings','Samuel Scott · 2 Mesa price-reduced matches')" class="btn-secondary">
                 <span class="material-symbols-outlined text-[14px]">home</span> Send Listings
               </button>
               <button onclick="toggleWhy('w2',this)" class="btn-why ml-auto">
@@ -1090,13 +1090,13 @@ body {
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <button class="btn-primary" style="background:#2a2a2a;color:#d4d4d4;">
+              <button onclick="leadAction('birthday','Kevin Lee')" class="btn-primary" style="background:#2a2a2a;color:#d4d4d4;">
                 <span class="material-symbols-outlined text-[14px]">mail</span> Send Birthday Note
               </button>
-              <button class="btn-secondary">
+              <button onclick="leadAction('call','Kevin Lee','(259) 693-9883')" class="btn-secondary">
                 <span class="material-symbols-outlined text-[14px]">phone</span> Call
               </button>
-              <button class="btn-secondary">
+              <button onclick="leadAction('deals','Kevin Lee · 3 off-market Surprise deals')" class="btn-secondary">
                 <span class="material-symbols-outlined text-[14px]">home_work</span> Send Deals
               </button>
               <button onclick="toggleWhy('w3',this)" class="btn-why ml-auto">
@@ -1185,7 +1185,7 @@ body {
       <div class="flex items-center gap-2 text-[11.5px] text-[#555] f5">
         <span class="material-symbols-outlined text-[14px] flex-shrink-0" style="color:#c4c4c4;">auto_awesome</span>
         AI analyzed 25 leads, 2 active transactions, and 4 pending tasks to surface these 3 priorities.
-        <a href="#" class="ml-1 font-semibold hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full pipeline →</a>
+        <a href="#" onclick="event.preventDefault();showView('crm');setNavActive(document.getElementById('nav-crm'))" class="ml-1 font-semibold hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full pipeline →</a>
       </div>
 
   </div><!-- /view-ai -->
@@ -1202,7 +1202,7 @@ body {
       <p class="text-[12.5px] flex-1" style="color:#cccccc;">
         <strong>This is what agents see today.</strong> Powerful data is here — but no clear answer to "what do I do first?" The AI is invisible.
       </p>
-      <button onclick="showView('ai')" class="btn-primary text-[11.5px]" style="padding:6px 14px;">See AI Briefing →</button>
+      <button onclick="showView('ai');setNavActive(document.getElementById('nav-ai'))" class="btn-primary text-[11.5px]" style="padding:6px 14px;">See AI Briefing →</button>
     </div>
 
     <div class="mb-5 f1">
@@ -1358,7 +1358,7 @@ body {
         <h1 class="text-[22px] font-bold text-white mb-1">Marketing</h1>
         <p class="text-[13px] text-[#555]">Smart Plans, campaigns, and outreach performance</p>
       </div>
-      <button class="btn-primary">
+      <button onclick="showToast('New Campaign','Opening Smart Plan builder…','ai')" class="btn-primary">
         <span class="material-symbols-outlined text-[15px]">add</span> New Campaign
       </button>
     </div>
@@ -1470,7 +1470,7 @@ body {
         <h1 class="text-[22px] font-bold text-white mb-1">My Listings</h1>
         <p class="text-[13px] text-[#555]">Active listings with AI-matched lead engagement</p>
       </div>
-      <button class="btn-primary">
+      <button onclick="showToast('Add Listing','Opening MLS listing form…','ai')" class="btn-primary">
         <span class="material-symbols-outlined text-[15px]">add</span> Add Listing
       </button>
     </div>
@@ -1676,7 +1676,7 @@ body {
         <h1 class="text-[22px] font-bold text-white mb-1">Notifications</h1>
         <p class="text-[13px] text-[#555]">AI alerts, activity signals, and reminders</p>
       </div>
-      <button class="btn-secondary text-[12px]">Mark all read</button>
+      <button onclick="markAllRead(this)" class="btn-secondary text-[12px]">Mark all read</button>
     </div>
 
     <div class="card overflow-hidden f1">
@@ -1760,6 +1760,9 @@ body {
 
 
 
+
+<!-- Toast stack -->
+<div id="toast-stack" aria-live="polite"></div>
 
 <!-- Floating AI button -->
 <button id="help-btn" onclick="openChat()" class="fixed bottom-6 right-6 z-[60] px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 active:scale-97"
@@ -1876,6 +1879,67 @@ const LEADS = [
   { id:26, first:'Michael',  last:'Brown',     type:'Renter',    email:'michael.brown@gmail.com',   phone:'(741) 357-1188', source:'Instagram',      minPrice:490000, maxPrice:845000,  city:'Tucson',    score:53, initials:'MB', daysAgo:7  },
 ];
 
+/* ══════════════════════════════════
+   TOAST NOTIFICATIONS
+══════════════════════════════════ */
+const TOAST_ICONS = {
+  call: 'phone', text: 'sms', email: 'mail', showing: 'calendar_month',
+  listings: 'home', birthday: 'cake', deals: 'home_work', info: 'info',
+  success: 'check_circle', warn: 'warning', ai: 'auto_awesome', search: 'search'
+};
+function showToast(title, sub, kind) {
+  const k = kind || 'info';
+  const stack = document.getElementById('toast-stack');
+  if (!stack) return;
+  const el = document.createElement('div');
+  el.className = 'toast ' + k;
+  const icon = TOAST_ICONS[k] || 'info';
+  el.innerHTML = `
+    <div class="toast-icon"><span class="material-symbols-outlined text-[16px]">${icon}</span></div>
+    <div class="flex-1 min-w-0">
+      <div class="toast-title">${title}</div>
+      ${sub ? `<div class="toast-sub">${sub}</div>` : ''}
+    </div>`;
+  stack.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 400);
+  }, 3200);
+}
+
+/* Lead card action handler */
+function leadAction(kind, name, extra) {
+  const map = {
+    call:     { title: `Calling ${name}`,            sub: extra ? `Dialing ${extra}…` : 'Dialing now…', k:'call' },
+    text:     { title: `Text to ${name}`,            sub: 'AI draft ready · opening composer',         k:'text' },
+    email:    { title: `Email to ${name}`,           sub: extra ? `To: ${extra}` : 'AI draft ready',    k:'email' },
+    showing:  { title: `Scheduling showing`,         sub: extra || name,                               k:'showing' },
+    listings: { title: `Listings sent`,              sub: extra || name,                               k:'listings' },
+    birthday: { title: `Birthday note sent`,         sub: `${name} · includes 3 off-market deals`,     k:'birthday' },
+    deals:    { title: `Deals sent to ${name}`,      sub: extra || 'Investment matches queued',        k:'deals' }
+  };
+  const m = map[kind] || { title: name, sub: '', k:'info' };
+  showToast(m.title, m.sub, m.k);
+}
+
+/* Top-bar search */
+function openSearch() {
+  showView('crm');
+  setNavActive(document.getElementById('nav-crm'));
+  setTimeout(() => document.getElementById('crm-search')?.focus(), 220);
+  showToast('Search leads', 'Jump to CRM — 26 leads ready to filter', 'search');
+}
+
+/* Mark all notifications read */
+function markAllRead(btn) {
+  document.querySelectorAll('#view-notifications .card-lift').forEach(row => {
+    row.style.opacity = '.45';
+  });
+  if (btn) btn.disabled = true;
+  showToast('Notifications cleared', 'All 6 alerts marked as read', 'success');
+}
+
 /* ── Live time ── */
 function updateTime() {
   const el = document.getElementById('live-time');
@@ -1907,6 +1971,9 @@ function showView(v) {
   ['ai','classic'].forEach(id => {
     document.getElementById('btn-' + id)?.classList.toggle('active', id === v);
   });
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  const navTarget = document.getElementById('nav-' + v) || document.getElementById('nav-ai');
+  navTarget?.classList.add('active');
   if (v === 'crm') renderLeads();
 }
 
@@ -2031,13 +2098,13 @@ function openLeadDetail(id) {
         ${l.birthday ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">cake</span><span class="text-[12.5px] text-[#aaa]">Birthday today — great time to reach out</span></div>` : ''}
       </div>
       <div class="flex gap-2 mb-3">
-        <button class="btn-primary flex-1 justify-center" onclick="closeLeadModal()">
+        <button class="btn-primary flex-1 justify-center" onclick="leadAction('call','${l.first} ${l.last}','${l.phone}');closeLeadModal()">
           <span class="material-symbols-outlined text-[14px]">phone</span> Call
         </button>
-        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+        <button class="btn-secondary flex-1 justify-center" onclick="leadAction('text','${l.first} ${l.last}');closeLeadModal()">
           <span class="material-symbols-outlined text-[14px]">sms</span> Text
         </button>
-        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+        <button class="btn-secondary flex-1 justify-center" onclick="leadAction('email','${l.first} ${l.last}','${l.email || ''}');closeLeadModal()">
           <span class="material-symbols-outlined text-[14px]">mail</span> Email
         </button>
       </div>
@@ -2874,15 +2941,17 @@ function scrollToLeadCards() {
 }
 
 function scrollToHighestEngagement() {
-  const message = 'Highest engagement: 4891 E Sunrise Dr (61 views on Sun). Brandon Allen viewed this property twice.';
-  alert(message);
+  showView('listings');
+  setNavActive(document.getElementById('nav-listings'));
+  showToast('Top listing · 4891 E Sunrise Dr', '61 views Sun · Brandon Allen viewed 2×', 'info');
 }
 
 function scrollToBrandonCard() {
-  const sections = document.querySelectorAll('.card-lift');
+  const sections = document.querySelectorAll('#view-ai .card-lift');
   if (sections.length > 0) {
     sections[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  leadAction('call', 'Brandon Allen', '(351) 771-1090');
 }
 </script>
 </body>

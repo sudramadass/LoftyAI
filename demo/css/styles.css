@@ -368,3 +368,51 @@ button:active::after, .btn-primary:active::after, .btn-secondary:active::after {
 /* Don't let nav-links or rows in CRM jitter by scaling */
 .crm-row:hover { transform: none; }
 .nav-link { transform-origin: left center; }
+
+/* ── Toast notifications ── */
+#toast-stack {
+  position: fixed;
+  bottom: 88px;
+  right: 24px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 360px;
+  padding: 12px 14px 12px 14px;
+  border-radius: 12px;
+  background: rgba(30, 30, 30, 0.92);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  color: #e8e8e8;
+  font-size: 12.5px;
+  line-height: 1.45;
+  font-family: 'Sora', sans-serif;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transform: translateX(110%);
+  opacity: 0;
+  transition: transform .38s cubic-bezier(.2,.7,.2,1), opacity .25s ease;
+}
+.toast.show { transform: translateX(0); opacity: 1; }
+.toast .toast-icon {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(113, 215, 205, .15);
+  color: #71d7cd;
+}
+.toast.success .toast-icon { background: rgba(34, 197, 94, .15); color: #22c55e; }
+.toast.warn    .toast-icon { background: rgba(245, 158, 11, .15); color: #f59e0b; }
+.toast.info    .toast-icon { background: rgba(113, 215, 205, .15); color: #71d7cd; }
+.toast.ai      .toast-icon { background: rgba(168, 85, 247, .15); color: #a855f7; }
+.toast .toast-title { font-weight: 600; color: #fff; font-size: 12.5px; }
+.toast .toast-sub   { color: #888; font-size: 11px; margin-top: 2px; }
