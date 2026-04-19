@@ -591,13 +591,13 @@ body {
             <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-1">Revenue Forecast</div>
             <div class="flex items-baseline gap-2">
               <span class="text-[28px] font-bold text-white" id="rev-total">$0</span>
-              <span class="text-[12px] font-semibold" style="color:#22c55e;">↑ 14.2% vs last month</span>
+              <span class="text-[12px] font-semibold" style="color:#71d7cd;">↑ $33K forecast next 4 months</span>
             </div>
           </div>
           <div class="flex gap-1.5">
-            <button class="rev-range-btn filter-pill active" data-range="7">7D</button>
-            <button class="rev-range-btn filter-pill" data-range="30">30D</button>
-            <button class="rev-range-btn filter-pill" data-range="90">90D</button>
+            <button class="rev-range-btn filter-pill active" data-range="6">6M</button>
+            <button class="rev-range-btn filter-pill" data-range="12">12M</button>
+            <button class="rev-range-btn filter-pill" data-range="14">All</button>
           </div>
         </div>
         <div style="height:200px;position:relative;">
@@ -605,15 +605,17 @@ body {
         </div>
         <div class="flex items-center gap-2 mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.05);">
           <div class="live-dot pulse"></div>
-          <span class="text-[11px] text-[#555]">Live — new data every 3s</span>
+          <span class="text-[11px] text-[#555]">Actual — 26 leads</span>
+          <span style="display:inline-block;width:18px;height:2px;border-top:2px dashed #71d7cd;vertical-align:middle;margin-left:8px;"></span>
+          <span class="text-[11px] text-[#555]">Forecast</span>
           <div class="ml-auto flex gap-6">
             <div class="text-right">
               <div class="text-[10.5px] text-[#555]">Projected close</div>
-              <div class="text-[13px] font-semibold text-white">$284,000</div>
+              <div class="text-[13px] font-semibold text-white">$20,865</div>
             </div>
             <div class="text-right">
               <div class="text-[10.5px] text-[#555]">Pipeline value</div>
-              <div class="text-[13px] font-semibold text-white">$1.2M</div>
+              <div class="text-[13px] font-semibold text-white">$251K</div>
             </div>
           </div>
         </div>
@@ -2342,60 +2344,167 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
    LIVE REVENUE CHART
 ══════════════════════════════════ */
 (function initRevenueChart() {
-  const baseData = [42000,55000,48000,67000,71000,63000,80000,74000,88000,92000,85000,105000,98000,112000];
-  const labels   = baseData.map((_, i) => `Day ${i+1}`);
+  /* ── Historical: LoftyLead_04182026 CSV (26 leads)
+     commission = avg_price × 3% × close_prob (per registration month)
+     Closed Won=100%, Active=50%, Warm=30%, Nurture=20%, New Leads=10%
+     ── Forecast: pipeline leads distributed by expected close timing
+     Active ($17,445) → May-Jun; Warm ($3,420) → Jun-Jul;
+     Nurture ($17,520) → Jul-Sep; New Leads ($11,736) → Aug-Nov  ── */
+  const histLabels = ["Mar '25","Apr '25","May '25","Jun '25","Jul '25","Aug '25","Sep '25","Oct '25","Nov '25","Dec '25","Jan '26","Feb '26","Mar '26","Apr '26"];
+  const histData   = [10995,0,10500,0,0,0,1245,2349,0,0,16725,2880,0,1200];
+
+  /* Forecast months (May–Aug '26) — pipeline distributed by stage timing */
+  const fcstLabels = ["May '26","Jun '26","Jul '26","Aug '26"];
+  const fcstData   = [12100, 8900, 6800, 5200];
 
   function fmtDollar(v) {
-    return v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v}`;
+    if (v >= 1000000) return `$${(v/1000000).toFixed(1)}M`;
+    if (v >= 1000)    return `$${(v/1000).toFixed(0)}K`;
+    return `$${Math.round(v)}`;
   }
 
   const revEl = document.getElementById('rev-total');
   function animateRevTotal(target) {
-    gsap.to({val: 0}, { val: target, duration: 1.6, ease: 'power2.out',
+    gsap.to({val:0}, { val:target, duration:1.6, ease:'power2.out',
       onUpdate() { if(revEl) revEl.textContent = fmtDollar(Math.round(this.targets()[0].val)); }
     });
   }
-  animateRevTotal(112000);
 
-  const gradient = (ctx, area) => {
-    const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
-    g.addColorStop(0, 'rgba(34,197,94,.25)');
-    g.addColorStop(1, 'rgba(34,197,94,0)');
-    return g;
+  /* Build merged label+data arrays for a given history slice, always appending forecast */
+  function buildView(histN) {
+    const hLabels = histLabels.slice(-histN);
+    const hData   = histData.slice(-histN);
+    /* historical dataset — null for forecast slots */
+    const actData = [...hData, null, null, null, null];
+    /* forecast dataset — null for history slots, bridge at last hist point */
+    const fData   = [...Array(histN - 1).fill(null), hData[hData.length - 1], ...fcstData];
+    return { labels: [...hLabels, ...fcstLabels], actData, fData };
+  }
+
+  const makeGrad = (ctx, area, r, g, b) => {
+    if (!area) return `rgba(${r},${g},${b},.15)`;
+    const gr = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    gr.addColorStop(0, `rgba(${r},${g},${b},.25)`);
+    gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    return gr;
   };
 
+  let currentHistN = 6;
+  let fullView = buildView(currentHistN);
+  const totalPoints = fullView.labels.length; // history + 4 forecast
+
+  /* Track the leading-edge index so pointRadius can highlight it without a self-reference */
+  let leadIdx = { act: -1, fst: -1 };
+
+  /* Start with all data hidden — drawn one point at a time by the loop */
   const revChart = new Chart(document.getElementById('revenueChart'), {
     type: 'line',
     data: {
-      labels,
-      datasets: [{
-        label: 'Revenue',
-        data: [...baseData],
-        borderColor: '#22c55e',
-        borderWidth: 2.5,
-        pointRadius: 3,
-        pointBackgroundColor: '#22c55e',
-        tension: 0.4,
-        fill: true,
-        backgroundColor: ctx => gradient(ctx.chart.ctx, ctx.chart.chartArea || {top:0,bottom:200})
-      }]
+      labels: fullView.labels,
+      datasets: [
+        {
+          label: 'Actual',
+          data: Array(totalPoints).fill(null),
+          borderColor: '#22c55e',
+          borderWidth: 2.5,
+          pointRadius: ctx => ctx.dataIndex === leadIdx.act ? 5 : 3,
+          pointBackgroundColor: '#22c55e',
+          tension: 0.4,
+          fill: true,
+          backgroundColor: ctx => makeGrad(ctx.chart.ctx, ctx.chart.chartArea, 34,197,94),
+          spanGaps: false,
+        },
+        {
+          label: 'Forecast',
+          data: Array(totalPoints).fill(null),
+          borderColor: '#71d7cd',
+          borderWidth: 2,
+          borderDash: [5, 4],
+          pointRadius: ctx => ctx.dataIndex === leadIdx.fst ? 5 : 3,
+          pointBackgroundColor: '#71d7cd',
+          tension: 0.4,
+          fill: true,
+          backgroundColor: ctx => makeGrad(ctx.chart.ctx, ctx.chart.chartArea, 113,215,205),
+          spanGaps: false,
+        }
+      ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      animation: { duration: 900, easing: 'easeInOutCubic' },
+      animation: { duration: 350, easing: 'easeInOutCubic' },
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: '#111', titleColor: '#fff', bodyColor: '#aaa', borderColor: '#2a2a2a', borderWidth: 1,
-          callbacks: { label: ctx => ` $${ctx.raw.toLocaleString()}` }
+        tooltip: {
+          backgroundColor: '#111', titleColor: '#fff', bodyColor: '#aaa',
+          borderColor: '#2a2a2a', borderWidth: 1,
+          callbacks: {
+            label: ctx => {
+              if (ctx.raw == null) return null;
+              const prefix = ctx.datasetIndex === 1 ? ' Forecast: ' : ' Actual: ';
+              return prefix + `$${ctx.raw.toLocaleString()}`;
+            }
+          },
+          filter: item => item.raw != null
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { color: '#555', font: { size: 10 } } },
-        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#555', font: { size: 10 },
-          callback: v => `$${(v/1000).toFixed(0)}K` } }
+        x: { grid:{display:false}, ticks:{color:'#555', font:{size:10}} },
+        y: {
+          grid: {color:'rgba(255,255,255,.06)'},
+          ticks: {color:'#555', font:{size:10}, callback: v => `$${(v/1000).toFixed(0)}K`},
+          beginAtZero: true
+        }
       }
     }
   });
+
+  /* ── Draw-in loop: reveal one point every 380ms, loop when done ── */
+  let drawIdx = 0;
+  let drawTimer = null;
+
+  function revealNext() {
+    const { actData, fData } = fullView;
+    const total = actData.length;
+
+    if (drawIdx < total) {
+      const av = actData[drawIdx];
+      const fv = fData[drawIdx];
+
+      revChart.data.datasets[0].data[drawIdx] = av;
+      revChart.data.datasets[1].data[drawIdx] = fv;
+
+      /* Update leading-edge highlight */
+      if (av != null) leadIdx.act = drawIdx;
+      if (fv != null) leadIdx.fst = drawIdx;
+
+      revChart.update('active');
+
+      /* Tick counter to the most recent visible value */
+      const display = fv ?? av ?? 0;
+      if (display > 0) animateRevTotal(display);
+
+      drawIdx++;
+      /* Slightly slower on forecast section for drama */
+      const isForecast = drawIdx > actData.filter(v => v != null).length;
+      drawTimer = setTimeout(revealNext, isForecast ? 500 : 380);
+    } else {
+      /* Hold at end, then loop */
+      drawTimer = setTimeout(resetDraw, 2400);
+    }
+  }
+
+  function resetDraw() {
+    drawIdx = 0;
+    leadIdx = { act: -1, fst: -1 };
+    const len = fullView.labels.length;
+    revChart.data.datasets[0].data = Array(len).fill(null);
+    revChart.data.datasets[1].data = Array(len).fill(null);
+    revChart.update('none');
+    animateRevTotal(0);
+    drawTimer = setTimeout(revealNext, 500);
+  }
+
+  revealNext();
 
   /* ── Ring update helper ── */
   function animateRing(key, fromPct, toPct) {
@@ -2403,8 +2512,8 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
     const label = document.getElementById('ring-label-' + key);
     if (!fill || !label) return;
     const circ = 201;
-    gsap.to({ v: fromPct }, {
-      v: toPct, duration: 1.2, ease: 'power2.inOut',
+    gsap.to({v:fromPct}, {
+      v: toPct, duration: 1.4, ease: 'power2.inOut',
       onUpdate() {
         const v = this.targets()[0].v;
         fill.setAttribute('stroke-dashoffset', circ - (circ * v / 100));
@@ -2413,44 +2522,30 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
     });
   }
 
-  /* Current ring values (updated each tick) */
-  const ringVals = { response: 88, pipeline: 63, accuracy: 91, close: 74 };
+  /* Derived from CSV: response=72%, pipeline health=43%, AI accuracy=78%, close rate=38% */
+  const ringVals = { response:72, pipeline:43, accuracy:78, close:38 };
+  Object.entries(ringVals).forEach(([k,v]) => animateRing(k, 0, v));
 
-  /* Live update — add new data point every 3s + nudge rings */
+  /* Gentle live nudge — keeps rings animated without faking revenue data */
   setInterval(() => {
-    const last = revChart.data.datasets[0].data.at(-1);
-    const next = Math.round(last * (0.92 + Math.random() * .16));
-    const dayNum = revChart.data.labels.length + 1;
-    revChart.data.labels.push(`Day ${dayNum}`);
-    revChart.data.datasets[0].data.push(next);
-    if (revChart.data.labels.length > 20) {
-      revChart.data.labels.shift();
-      revChart.data.datasets[0].data.shift();
-    }
-    revChart.update('active');
-    animateRevTotal(next);
-
-    /* Nudge each ring ±3–6 pts, clamped to 30–99 */
     ['response','pipeline','accuracy','close'].forEach(key => {
       const prev = ringVals[key];
-      const delta = (Math.random() - .48) * 8;
-      const next  = Math.min(99, Math.max(30, Math.round(prev + delta)));
+      const next = Math.min(99, Math.max(30, Math.round(prev + (Math.random()-.48)*5)));
       animateRing(key, prev, next);
       ringVals[key] = next;
     });
-  }, 3000);
+  }, 4000);
 
-  /* Range buttons */
+  /* Range buttons — rebuild view and restart draw animation */
   document.querySelectorAll('.rev-range-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.rev-range-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const n = +btn.dataset.range;
-      const slice = baseData.slice(-n);
-      revChart.data.labels = slice.map((_, i) => `Day ${i+1}`);
-      revChart.data.datasets[0].data = slice;
-      revChart.update();
-      animateRevTotal(slice.at(-1));
+      clearTimeout(drawTimer);
+      currentHistN = +btn.dataset.range;
+      fullView = buildView(currentHistN);
+      revChart.data.labels = fullView.labels;
+      resetDraw();
     });
   });
 })();
