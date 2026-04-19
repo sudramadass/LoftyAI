@@ -7,8 +7,323 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<link rel="stylesheet" href="css/styles.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+* { font-family: 'Sora', sans-serif; }
+
+body {
+  background: #111111;
+  min-height: 100vh;
+  color: #e8e8e8;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+}
+
+/* ── Surface stack (Suno-style tonal dark layers) ── */
+.surface-0  { background: #0d0d0d; }   /* deepest */
+.surface-1  { background: #1a1a1a; }   /* sidebar */
+.surface-2  { background: #222222; }   /* cards */
+.surface-3  { background: #2a2a2a; }   /* elevated / hover */
+
+/* ── Cards — no hard borders, tonal contrast ── */
+.card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.card-sm {
+  background: #1e1e1e;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── Left sidebar ── */
+.sidebar {
+  background: #141414;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  width: 200px;
+  flex-shrink: 0;
+}
+
+/* ── Nav link (sidebar) ── */
+.nav-link {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 14px; border-radius: 8px;
+  font-size: 13.5px; font-weight: 500; color: #888;
+  cursor: pointer; transition: all .18s; text-decoration: none;
+}
+.nav-link:hover { background: rgba(255,255,255,.05); color: #e8e8e8; }
+.nav-link.active { background: rgba(255,255,255,.08); color: #fff; font-weight: 600; }
+
+/* ── Top strip (inside main) ── */
+.top-strip {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #141414;
+}
+
+/* ── View toggle ── */
+.toggle-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 15px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 500; color: #777;
+  cursor: pointer; transition: all .18s; border: none;
+  background: transparent;
+}
+.toggle-btn.active {
+  background: rgba(255,255,255,.1);
+  color: #fff; font-weight: 600;
+}
+
+/* ── Priority bands ── */
+.band-urgent { background: #777777; }
+.band-warm   { background: #999999; }
+.band-today  { background: #bbbbbb; }
+
+/* ── Pill ── */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 100px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .05em;
+}
+
+/* ── Chip ── */
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 100px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .03em;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; color: #0d0d0d;
+  background: #e8e8e8; border: none; cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btn-primary:hover { background: #fff; transform: translateY(-1px); }
+.btn-primary:active { transform: scale(.97); }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 13px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 500; color: #aaa;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  cursor: pointer; transition: all .15s;
+}
+.btn-secondary:hover { background: rgba(255,255,255,.10); color: #e8e8e8; }
+.btn-secondary:active { transform: scale(.97); }
+
+.btn-why {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; color: #c4c4c4;
+  background: transparent;
+  border: 1px solid rgba(180,180,180,.3);
+  cursor: pointer; transition: all .15s;
+}
+.btn-why:hover { background: rgba(180,180,180,.08); border-color: rgba(180,180,180,.5); }
+
+/* ── Why panel ── */
+.why-panel {
+  display: grid; grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows .38s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+}
+.why-panel > .why-inner { overflow: hidden; }
+.why-panel.open { grid-template-rows: 1fr; opacity: 1; }
+
+/* ── Confidence bar ── */
+.conf-track { height: 3px; border-radius: 2px; background: rgba(255,255,255,.08); overflow: hidden; }
+.conf-fill  { height: 100%; border-radius: 2px; background: #c4c4c4; }
+
+/* ── Avatar ── */
+.avatar {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+
+/* ── Chart cards ── */
+.chart-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .chart-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.chart-card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+}
+.chart-card-title {
+  margin-bottom: 16px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #555;
+}
+.chart-canvas {
+  width: 100%;
+  height: 240px;
+}
+.chart-card-buttons {
+  text-align: center;
+  margin-top: 12px;
+}
+.chart-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  text-decoration: none;
+}
+.chart-callout:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.25);
+  text-decoration: none;
+}
+
+/* ── Icon tile ── */
+.icon-tile {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* ── Stat tile ── */
+.stat-tile {
+  background: rgba(255,255,255,.04);
+  border-radius: 10px; padding: 13px 15px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+
+/* ── Card lift ── */
+.card-lift { transition: background .18s, transform .18s; }
+.card-lift:hover { background: #252525; transform: translateY(-1px); }
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulseDot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.45; transform:scale(.78); }
+}
+@keyframes floatBob {
+  0%,100% { transform:translateY(0); }
+  50%      { transform:translateY(-4px); }
+}
+@keyframes breathe {
+  0%,100% { opacity:1; }
+  50%      { opacity:.6; }
+}
+
+.f1 { animation: fadeInUp .42s ease both; }
+.f2 { animation: fadeInUp .42s .07s ease both; }
+.f3 { animation: fadeInUp .42s .14s ease both; }
+.f4 { animation: fadeInUp .42s .21s ease both; }
+.f5 { animation: fadeInUp .42s .28s ease both; }
+
+.pulse { animation: pulseDot 2.2s ease-in-out infinite; }
+.bob   { animation: floatBob 3s ease-in-out infinite; }
+.breathe { animation: breathe 3s ease-in-out infinite; }
+
+/* ── Live dot ── */
+.live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#c4c4c4; }
+
+/* ── Right sidebar ── */
+#right-sidebar { transition: transform .42s cubic-bezier(.16,1,.3,1); }
+
+/* ── Divider ── */
+.soft-divider { height:1px; background:rgba(255,255,255,.05); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:2px; }
+
+/* ── Classic cards ── */
+.classic-card {
+  background: #1e1e1e; border-radius: 12px; padding: 20px;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+/* ── Nav pill (top) ── */
+.nav-pill-top {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 100px;
+  font-size: 12.5px; font-weight: 500; color: #888;
+  cursor: pointer; transition: all .18s; text-decoration: none;
+  background: transparent;
+}
+.nav-pill-top:hover { color: #e8e8e8; background: rgba(255,255,255,.06); }
+.nav-pill-top.active { background: rgba(255,255,255,.1); color: #fff; font-weight: 600; }
+
+/* ── Chat Panel ── */
+#chat-panel { transition: transform .42s cubic-bezier(.16,1,.3,1); }
+#chat-panel.open { transform: translateY(0) !important; }
+.chat-bubble-user { background: #2a2a2a; border-radius: 16px 16px 4px 16px; }
+.chat-bubble-ai { background: #1e1e1e; border: 1px solid rgba(255,255,255,.06); border-radius: 16px 16px 16px 4px; }
+.chat-input-box {
+  background: #1e1e1e; border: 1px solid rgba(255,255,255,.1); border-radius: 10px;
+  color: #e8e8e8; outline: none; resize: none; width: 100%;
+  font-family: 'Sora', sans-serif;
+}
+.chat-input-box:focus { border-color: rgba(255,255,255,.2); }
+.chat-input-box::placeholder { color: #444; }
+.chat-send-btn {
+  background: #e8e8e8; color: #0d0d0d; border-radius: 8px; border: none;
+  cursor: pointer; transition: background .15s; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+}
+.chat-send-btn:hover { background: #fff; }
+.chat-send-btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; }
+
+/* ── Filter pills (CRM) ── */
+.filter-pill {
+  padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,.08); background: transparent;
+  color: #666; cursor: pointer; transition: all .15s;
+}
+.filter-pill:hover { color: #aaa; border-color: rgba(255,255,255,.15); }
+.filter-pill.active { background: rgba(255,255,255,.08); color: #e8e8e8; border-color: rgba(255,255,255,.15); }
+
+/* ── CRM row ── */
+.crm-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 90px 80px 110px 130px;
+  gap: 12px; align-items: center;
+  padding: 11px 16px; cursor: pointer; transition: background .15s;
+}
+.crm-row:hover { background: rgba(255,255,255,.03); }
+.crm-score-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,.07); overflow: hidden; }
+.crm-score-fill { height: 100%; border-radius: 2px; background: #888; }
+.type-badge {
+  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 100px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  background: rgba(255,255,255,.07); color: #777;
+}
+</style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
@@ -77,6 +392,7 @@
       New Campaign
     </button>
   </div>
+
 
 </aside>
 
@@ -201,28 +517,33 @@
         </div>
       </div>
 
-
-      <!-- ── Charts ── -->
       <div class="chart-row">
         <div class="chart-card p-5 f3">
           <div class="chart-card-title">Lead Pipeline</div>
-          <div class="chart-canvas"><canvas id="pipelineChart"></canvas></div>
-          <a class="chart-callout" onclick="scrollToLeadCards()">9 untouched leads — Follow up now →</a>
+          <div class="chart-canvas">
+            <canvas id="pipelineChart"></canvas>
+          </div>
+          <div class="chart-card-buttons">
+            <button class="chart-callout" onclick="scrollToLeadCards()">Follow up 9 leads</button>
+          </div>
         </div>
         <div class="chart-card p-5 f3">
           <div class="chart-card-title">Listing Engagement</div>
-          <div class="chart-canvas"><canvas id="engagementChart"></canvas></div>
-          <a class="chart-callout" onclick="scrollToHighestEngagement()">4891 E Sunrise Dr has highest engagement — View listing →</a>
+          <div class="chart-canvas">
+            <canvas id="engagementChart"></canvas>
+          </div>
+          <div class="chart-card-buttons">
+            <button class="chart-callout" onclick="scrollToHighestEngagement()">View top listing</button>
+          </div>
         </div>
         <div class="chart-card p-5 f3">
-          <div class="chart-card-stat">
-            <div style="font-size:11px;color:#555;line-height:1.2;">↑ +12 pts</div>
-            <div class="chart-card-stat-value">+12</div>
-            <div style="font-size:9px;color:#555;margin-top:2px;">Brandon · this week</div>
-          </div>
           <div class="chart-card-title">Lead Score Trend</div>
-          <div class="chart-canvas"><canvas id="trendChart"></canvas></div>
-          <a class="chart-callout" onclick="scrollToBrandonCard()">Brandon Allen +12 pts this week ↑ — Call now →</a>
+          <div class="chart-canvas">
+            <canvas id="trendChart"></canvas>
+          </div>
+          <div class="chart-card-buttons">
+            <button class="chart-callout" onclick="scrollToBrandonCard()">Call Brandon Allen</button>
+          </div>
         </div>
       </div>
 
@@ -282,7 +603,11 @@
             <div id="w1" class="why-panel">
               <div class="why-inner">
                 <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.06);">
-                  <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-3">AI Signal Trail — Why Brandon is #1 today</div>
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Signal Trail — Why Brandon is #1 today</div>
+                    <div class="flex items-center gap-2">
+                    </div>
+                  </div>
                   <div class="space-y-2.5">
                     <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(130,130,130,.5);">
                       <div class="flex-1">
@@ -380,7 +705,11 @@
             <div id="w2" class="why-panel">
               <div class="why-inner">
                 <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.06);">
-                  <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-3">AI Signal Trail — Why Samuel is #2 today</div>
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Signal Trail — Why Samuel is #2 today</div>
+                    <div class="flex items-center gap-2">
+                    </div>
+                  </div>
                   <div class="space-y-2.5">
                     <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(160,160,160,.5);">
                       <div class="flex-1">
@@ -472,7 +801,11 @@
             <div id="w3" class="why-panel">
               <div class="why-inner">
                 <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.06);">
-                  <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-3">AI Signal Trail — Why Kevin is included today</div>
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Signal Trail — Why Kevin is included today</div>
+                    <div class="flex items-center gap-2">
+                    </div>
+                  </div>
                   <div class="space-y-2.5">
                     <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(165,165,165,.5);">
                       <div class="flex-1">
@@ -950,12 +1283,532 @@
 </div>
 
 
-<!-- Scripts: data must load before modules that depend on it -->
-<script src="js/data.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/crm.js"></script>
-<script src="js/chat.js"></script>
-<script src="js/charts.js"></script>
+<script>
+/* ════════════════════════════════════
+   LEADS DATA — from CSV export
+════════════════════════════════════ */
+const LEADS = [
+  { id:1,  first:'Samuel',   last:'Scott',     type:'Buyer',     email:'samuel.scott@gmail.com',    phone:'(617) 438-9890', source:'YouTube',        minPrice:319000, maxPrice:401000,  city:'Mesa',      score:74, initials:'SS', daysAgo:0  },
+  { id:2,  first:'Daniel',   last:'Thomas',    type:'Seller',    email:'daniel.thomas@gmail.com',   phone:'(335) 457-2127', source:'Instagram',      score:52, initials:'DT', daysAgo:3  },
+  { id:3,  first:'Fatima',   last:'Jackson',   type:'Landlord',  email:'fatima.jackson@gmail.com',  phone:'(934) 451-4335', source:'Zillow',         score:61, initials:'FJ', daysAgo:1  },
+  { id:4,  first:'Yuki',     last:'Young',     type:'Buyer',     email:'yuki.young@gmail.com',      phone:'(660) 365-5050', source:'Email Campaign', minPrice:556000, maxPrice:687000,  city:'Surprise',  score:68, initials:'YY', daysAgo:2  },
+  { id:5,  first:'Carlos',   last:'Garcia',    type:'Other',     email:'carlos.garcia@gmail.com',   phone:'(562) 533-7735', source:'Zillow',         minPrice:196000, maxPrice:295000,  city:'Glendale',  score:44, initials:'CG', daysAgo:7  },
+  { id:6,  first:'David',    last:'Williams',  type:'Seller',    email:'david.williams@gmail.com',  phone:'(367) 573-7216', source:'Cold Call',      score:38, initials:'DW', daysAgo:5  },
+  { id:7,  first:'Sofia',    last:'Kim',       type:'Agent',     email:'sofia.kim@gmail.com',       phone:'(962) 674-9830', source:'Referral',       score:71, initials:'SK', daysAgo:1  },
+  { id:8,  first:'Kevin',    last:'Lee',       type:'Agent',     email:'kevin.lee@gmail.com',       phone:'(259) 693-9883', source:'Podcast',        score:83, initials:'KL', daysAgo:28, birthday:true },
+  { id:9,  first:'Aisha',    last:'Patel',     type:'Landlord',  email:'aisha.patel@gmail.com',     phone:'(980) 265-9837', source:'Zillow',         score:55, initials:'AP', daysAgo:4  },
+  { id:10, first:'Tyler',    last:'Harris',    type:'Landlord',  email:'tyler.harris@gmail.com',    phone:'(277) 807-3442', source:'Walk-In',        score:49, initials:'TH', daysAgo:6  },
+  { id:11, first:'Jennifer', last:'Lewis',     type:'Other',     email:'jennifer.lewis@gmail.com',  phone:'(594) 690-4114', source:'Facebook',       minPrice:421000, maxPrice:694000,  city:'Tucson',    score:61, initials:'JL', daysAgo:2  },
+  { id:12, first:'Chris',    last:'Walker',    type:'Investor',  email:'chris.walker@gmail.com',    phone:'(396) 530-7211', source:'Podcast',        score:66, initials:'CW', daysAgo:9  },
+  { id:13, first:'Brandon',  last:'Allen',     type:'Buyer',     email:'brandon.allen@gmail.com',   phone:'(351) 771-1090', source:'Google',         minPrice:606000, maxPrice:860000,  city:'Tucson',    score:88, initials:'BA', daysAgo:14, urgent:true },
+  { id:14, first:'Emily',    last:'Wilson',    type:'Renter',    email:'emily.wilson@gmail.com',    phone:'(272) 824-1964', source:'Facebook',       minPrice:702000, maxPrice:864000,  city:'Tucson',    score:61, initials:'EW', daysAgo:3  },
+  { id:15, first:'Robert',   last:'Davis',     type:'Homeowner', email:'robert.davis@gmail.com',    phone:'(762) 269-5342', source:'Walk-In',        score:33, initials:'RD', daysAgo:12 },
+  { id:16, first:'Andre',    last:'Nelson',    type:'Investor',  email:'andre.nelson@gmail.com',    phone:'(588) 435-4467', source:'Instagram',      score:58, initials:'AN', daysAgo:5  },
+  { id:17, first:'James',    last:'Johnson',   type:'Buyer',     email:'james.johnson@gmail.com',   phone:'(548) 384-3547', source:'Cold Call',      minPrice:263000, maxPrice:670000,  city:'Tucson',    score:56, initials:'JJ', daysAgo:8  },
+  { id:18, first:'Natasha',  last:'Robinson',  type:'Homeowner', email:'natasha.robinson@gmail.com',phone:'(442) 985-3662', source:'Facebook',       score:29, initials:'NR', daysAgo:20 },
+  { id:19, first:'Maria',    last:'Martinez',  type:'Investor',  email:'maria.martinez@gmail.com',  phone:'(791) 296-2139', source:'Walk-In',        score:63, initials:'MM', daysAgo:3  },
+  { id:20, first:'Mei',      last:'Hall',      type:'Buyer',     email:'mei.hall@gmail.com',        phone:'(874) 186-5649', source:'Facebook',       minPrice:584000, maxPrice:1040000, city:'Glendale',  score:72, initials:'MH', daysAgo:1  },
+  { id:21, first:'Omar',     last:'Clark',     type:'Renter',    email:'omar.clark@gmail.com',      phone:'(875) 297-7528', source:'Walk-In',        minPrice:333000, maxPrice:497000,  city:'Glendale',  score:47, initials:'OC', daysAgo:6  },
+  { id:22, first:'Linda',    last:'Taylor',    type:'Homeowner', email:'linda.taylor@gmail.com',    phone:'(295) 871-4872', source:'Google',         score:41, initials:'LT', daysAgo:15 },
+  { id:23, first:'Priya',    last:'Anderson',  type:'Seller',    email:'priya.anderson@gmail.com',  phone:'(834) 183-7868', source:'Instagram',      score:69, initials:'PA', daysAgo:2  },
+  { id:24, first:'(Unknown)',last:'',          type:'Other',     phone:'(634) 545-3322',            source:'Other',          score:12, initials:'??', daysAgo:1  },
+  { id:25, first:'Rachel',   last:'Adams',     type:'Agent',     email:'rachel.adams@gmail.com',    phone:'(424) 379-8140', source:'Email Campaign', score:77, initials:'RA', daysAgo:4  },
+  { id:26, first:'Michael',  last:'Brown',     type:'Renter',    email:'michael.brown@gmail.com',   phone:'(741) 357-1188', source:'Instagram',      minPrice:490000, maxPrice:845000,  city:'Tucson',    score:53, initials:'MB', daysAgo:7  },
+];
 
+/* ── Live time ── */
+function updateTime() {
+  const el = document.getElementById('live-time');
+  if (!el) return;
+  const now = new Date();
+  el.textContent = now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) +
+    ' · ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+}
+updateTime(); setInterval(updateTime, 60000);
+
+/* ── View toggle ── */
+function showView(v) {
+  ['ai','classic','crm'].forEach(id => {
+    const el = document.getElementById('view-' + id);
+    if (el) el.classList.toggle('hidden', id !== v);
+  });
+  // Top toggle buttons
+  ['ai','classic'].forEach(id => {
+    document.getElementById('btn-' + id)?.classList.toggle('active', id === v);
+  });
+  if (v === 'crm') renderLeads();
+}
+
+function setNavActive(el) {
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ── Why panels ── */
+function toggleWhy(id, btn) {
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.why-panel.open').forEach(p => {
+    if (p.id !== id) {
+      p.classList.remove('open');
+      const b = document.querySelector(`[onclick="toggleWhy('${p.id}',this)"]`);
+      if (b) b.style.color = '';
+    }
+  });
+  panel.classList.toggle('open', !isOpen);
+  btn.style.color = !isOpen ? '#d4d4d4' : '';
+}
+
+/* ── Right sidebar ── */
+function openSidebar() {
+  const s = document.getElementById('right-sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.remove('translate-x-full');
+  o.classList.remove('pointer-events-none');
+  setTimeout(() => o.classList.remove('opacity-0'), 10);
+}
+function closeSidebar() {
+  const s = document.getElementById('right-sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.add('translate-x-full');
+  o.classList.add('opacity-0');
+  setTimeout(() => o.classList.add('pointer-events-none'), 420);
+}
+
+/* ════════════════════════════════════
+   CRM VIEW
+════════════════════════════════════ */
+let crmFilter = 'All';
+let crmSearch = '';
+
+function setLeadFilter(type) {
+  crmFilter = type;
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.filter === type);
+  });
+  renderLeads();
+}
+
+function filterLeads() {
+  crmSearch = (document.getElementById('crm-search')?.value || '').toLowerCase();
+  renderLeads();
+}
+
+function renderLeads() {
+  const container = document.getElementById('crm-lead-list');
+  if (!container) return;
+  const filtered = LEADS
+    .filter(l => {
+      const matchType = crmFilter === 'All' || l.type === crmFilter;
+      const term = crmSearch;
+      const matchSearch = !term ||
+        (l.first + ' ' + l.last).toLowerCase().includes(term) ||
+        (l.email || '').toLowerCase().includes(term) ||
+        (l.city || '').toLowerCase().includes(term) ||
+        l.type.toLowerCase().includes(term);
+      return matchType && matchSearch;
+    })
+    .sort((a, b) => b.score - a.score);
+
+  container.innerHTML = filtered.length ? filtered.map(l => `
+    <div class="crm-row border-b border-[rgba(255,255,255,.04)]" onclick="openLeadDetail(${l.id})">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+           style="background:rgba(255,255,255,.09);">${l.initials}</div>
+      <div class="min-w-0">
+        <div class="text-[13px] font-semibold text-white truncate">${l.first} ${l.last}${l.birthday ? ' 🎂' : ''}${l.urgent ? ' ⚠' : ''}</div>
+        <div class="text-[11px] text-[#555] truncate">${l.email || l.phone}</div>
+      </div>
+      <div><span class="type-badge">${l.type}</span></div>
+      <div>
+        <div class="text-[13px] font-semibold text-white mb-1">${l.score}</div>
+        <div class="crm-score-bar"><div class="crm-score-fill" style="width:${l.score}%"></div></div>
+      </div>
+      <div class="text-[12px] text-[#666]">${l.source}</div>
+      <div class="text-[11.5px] text-[#555]">${l.minPrice ? '$' + Math.round(l.minPrice/1000) + 'K–$' + Math.round(l.maxPrice/1000) + 'K' : (l.city || '—')}</div>
+    </div>
+  `).join('') : `<div class="px-6 py-8 text-[13px] text-[#444] text-center">No leads match your filter.</div>`;
+}
+
+/* ── Lead Detail Modal ── */
+function openLeadDetail(id) {
+  const l = LEADS.find(x => x.id === id);
+  if (!l) return;
+  const modal = document.getElementById('lead-modal');
+  const content = document.getElementById('lead-modal-content');
+  const fmt = n => '$' + Math.round(n/1000) + 'K';
+  content.innerHTML = `
+    <div class="p-6">
+      <div class="flex items-start justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-[14px] font-bold text-white flex-shrink-0"
+               style="background:rgba(255,255,255,.09);">${l.initials}</div>
+          <div>
+            <div class="text-[17px] font-bold text-white leading-tight">${l.first} ${l.last}</div>
+            <span class="type-badge mt-1">${l.type}</span>
+          </div>
+        </div>
+        <div class="text-right ml-4">
+          <div class="text-[10px] text-[#555] mb-0.5">AI Score</div>
+          <div class="text-[28px] font-bold text-white leading-none">${l.score}</div>
+        </div>
+      </div>
+      <div class="crm-score-bar mb-4"><div class="crm-score-fill" style="width:${l.score}%"></div></div>
+      <div class="space-y-2.5 mb-5">
+        ${l.email ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">mail</span><span class="text-[12.5px] text-[#aaa]">${l.email}</span></div>` : ''}
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">phone</span><span class="text-[12.5px] text-[#aaa]">${l.phone}</span></div>
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">hub</span><span class="text-[12.5px] text-[#aaa]">Source: ${l.source}</span></div>
+        ${l.city ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">location_on</span><span class="text-[12.5px] text-[#aaa]">${l.city}, AZ</span></div>` : ''}
+        ${l.minPrice ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">attach_money</span><span class="text-[12.5px] text-[#aaa]">Budget: ${fmt(l.minPrice)} – ${fmt(l.maxPrice)}</span></div>` : ''}
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">schedule</span><span class="text-[12.5px] text-[#aaa]">Last contact: ${l.daysAgo === 0 ? 'Today' : l.daysAgo + ' days ago'}</span></div>
+        ${l.birthday ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">cake</span><span class="text-[12.5px] text-[#aaa]">Birthday today — great time to reach out</span></div>` : ''}
+      </div>
+      <div class="flex gap-2 mb-3">
+        <button class="btn-primary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">phone</span> Call
+        </button>
+        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">sms</span> Text
+        </button>
+        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">mail</span> Email
+        </button>
+      </div>
+      <button onclick="closeLeadModal()" class="w-full text-center text-[11.5px] text-[#444] hover:text-[#888] transition-colors py-1">Dismiss</button>
+    </div>
+  `;
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+}
+function closeLeadModal() {
+  document.getElementById('lead-modal').classList.add('opacity-0', 'pointer-events-none');
+}
+
+/* ════════════════════════════════════
+   GEMINI AI CHAT
+════════════════════════════════════ */
+const GEMINI_KEY = 'AIzaSyC9Td15CWPYRT4lQwJXWb8Q5yBbKilRPzw';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_KEY}`;
+
+const SYSTEM_PROMPT = `You are Lofty AI, an intelligent real estate CRM assistant built into the Lofty platform, helping Sarah Martinez — a real estate agent at Keller Williams AZ. Today is April 19, 2026.
+
+Sarah has 26 leads in her CRM. Today's AI-prioritized top 3:
+1. Brandon Allen (Score 88, URGENT) — Buyer, $606K–$860K, Tucson AZ. Viewed 4891 E Sunrise Dr twice + 2 other listings in 48hrs. Rate lock expires April 22 (3 days). 14 days since last contact. Source: Google.
+2. Samuel Scott (Score 74) — Buyer, $319K–$401K, Mesa AZ. Returned to site after 12-day absence. 19 min on 3488 Cedar St — floor plan viewed 3× and school district page. 2 price-reduced Mesa listings match his search. Source: YouTube.
+3. Kevin Lee (Score 83) — Past client/Agent. Birthday TODAY. Last contact 28 days ago (approaching cold zone). Interested in Surprise investment properties (6–7% cap rate). 2 referrals sent. Source: Podcast.
+
+Other leads worth mentioning: Mei Hall (72, Facebook, Buyer $584K–$1.04M Glendale), Rachel Adams (77, Email Campaign, Agent), Sofia Kim (71, Referral, Agent), Priya Anderson (69, Instagram, Seller), Yuki Young (68, Email Campaign, Buyer $556K–$687K Surprise), Chris Walker (66, Podcast, Investor), Maria Martinez (63, Walk-In, Investor), Fatima Jackson (61, Zillow, Landlord), Jennifer Lewis (61, Facebook, Buyer $421K–$694K Tucson), Emily Wilson (61, Facebook, Renter).
+
+Active transactions: 2847 S Rural Rd (deadline in 48 hours — urgent), 1204 W Baseline (on track).
+AI worked overnight: 12 follow-up emails sent, 35 lead scores updated, 8 buyer-listing matches found.
+Today's showings: 2pm and 4:30pm.
+
+You can help Sarah with: lead prioritization, writing follow-up texts/emails, market insights for AZ, scheduling advice, explaining AI scores, next best actions. Be concise, warm, and actionable. Use bullet points for lists. Keep responses under 200 words unless asked for more detail.`;
+
+const chatHistory = [];
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addBubble('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  const btn = document.getElementById('chat-send');
+  btn.disabled = true;
+  const tid = addTyping();
+  chatHistory.push({ role: 'user', parts: [{ text }] });
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: chatHistory,
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
+      })
+    });
+    const data = await res.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+      || (data.error ? `Error: ${data.error.message}` : 'Something went wrong — please try again.');
+    removeTyping(tid);
+    chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+    addBubble('ai', reply);
+  } catch (e) {
+    removeTyping(tid);
+    addBubble('ai', 'Network error — check your connection and try again.');
+  }
+  btn.disabled = false;
+}
+
+function addBubble(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-3`;
+  const html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+  div.innerHTML = `<div class="max-w-[88%] px-4 py-3 text-[12.5px] leading-relaxed ${role === 'user' ? 'chat-bubble-user text-white' : 'chat-bubble-ai text-[#e0e0e0]'}">${html}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+let _tc = 0;
+function addTyping() {
+  const id = 'ty-' + (++_tc);
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'flex justify-start mb-3';
+  div.innerHTML = `<div class="chat-bubble-ai px-4 py-3 flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .0s infinite"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .2s infinite"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .4s infinite"></span>
+  </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+function removeTyping(id) { document.getElementById(id)?.remove(); }
+
+function openChat() {
+  document.getElementById('chat-panel').classList.add('open');
+  document.getElementById('help-btn').style.opacity = '0';
+  document.getElementById('help-btn').style.pointerEvents = 'none';
+  setTimeout(() => document.getElementById('chat-input')?.focus(), 450);
+}
+function closeChat() {
+  document.getElementById('chat-panel').classList.remove('open');
+  const btn = document.getElementById('help-btn');
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = '';
+}
+
+function createChartPalette() {
+  return {
+    untouched: '#ef4444',
+    contacted: '#f59e0b',
+    hot: '#3b82f6',
+    closed: '#22c55e',
+    listing: '#3B82F6',
+    listingAlt: '#A855F7',
+    listingAlt2: '#14B8A6',
+    trendA: '#7c3aed',
+    trendB: '#38bdf8',
+    trendC: '#34d399',
+    mutedText: '#888888',
+    gridLine: 'rgba(255,255,255,0.08)'
+  };
+}
+
+function initCharts() {
+  const palette = createChartPalette();
+
+  Chart.register({
+    id: 'centerText',
+    beforeDraw(chart) {
+      const centerText = chart.config.options.plugins.centerText;
+      if (!centerText) return;
+      const { ctx, chartArea: { width, height } } = chart;
+      ctx.save();
+      ctx.fillStyle = centerText.color || '#ffffff';
+      ctx.font = centerText.font || '700 16px Sora, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(centerText.text, width / 2, height / 2);
+      ctx.restore();
+    }
+  });
+
+  new Chart(document.getElementById('pipelineChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Untouched', 'Contacted', 'Hot', 'Closed'],
+      datasets: [{
+        data: [9, 8, 5, 3],
+        backgroundColor: [palette.untouched, palette.contacted, palette.hot, palette.closed],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: '#555',
+            font: { size: 10 },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 12
+          }
+        },
+        tooltip: {
+          backgroundColor: '#111111',
+          titleColor: '#ffffff',
+          bodyColor: '#e8e8e8',
+          borderColor: '#2a2a2a',
+          borderWidth: 1
+        },
+        centerText: {
+          text: '25 Total',
+          color: '#e8e8e8',
+          font: '700 16px Sora, sans-serif'
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('engagementChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [
+        {
+          label: '4891 E Sunrise Dr',
+          data: [42, 57, 49, 63, 55, 68, 61],
+          backgroundColor: palette.listing,
+          borderRadius: 6,
+          barThickness: 18
+        },
+        {
+          label: '3488 Cedar St',
+          data: [33, 45, 37, 52, 44, 50, 47],
+          backgroundColor: palette.listingAlt,
+          borderRadius: 6,
+          barThickness: 18
+        },
+        {
+          label: '182 Saint Peter St',
+          data: [28, 35, 30, 39, 34, 42, 36],
+          backgroundColor: palette.listingAlt2,
+          borderRadius: 6,
+          barThickness: 18
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: { color: '#555', font: { size: 10 }, boxWidth: 10, padding: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#111111',
+          titleColor: '#ffffff',
+          bodyColor: '#e8e8e8',
+          borderColor: '#2a2a2a',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: palette.mutedText }
+        },
+        y: {
+          grid: { color: palette.gridLine, drawBorder: false },
+          ticks: { color: palette.mutedText, stepSize: 20 }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6','Day 7','Day 8','Day 9','Day 10','Day 11','Day 12','Day 13','Day 14'],
+      datasets: [
+        {
+          label: 'Brandon Allen',
+          data: [68, 70, 73, 75, 76, 80, 82, 84, 86, 87, 88, 87, 88, 88],
+          borderColor: palette.trendA,
+          pointBackgroundColor: palette.trendA,
+          pointRadius: 4,
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2
+        },
+        {
+          label: 'Samuel Scott',
+          data: [56, 57, 58, 60, 62, 64, 66, 68, 69, 71, 72, 73, 74, 74],
+          borderColor: palette.trendB,
+          pointBackgroundColor: palette.trendB,
+          pointRadius: 4,
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2
+        },
+        {
+          label: 'Kevin Lee',
+          data: [48, 50, 51, 53, 55, 56, 57, 58, 59, 60, 61, 61, 61, 61],
+          borderColor: palette.trendC,
+          pointBackgroundColor: palette.trendC,
+          pointRadius: 4,
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: { color: '#555', font: { size: 10 }, boxWidth: 10, padding: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#111111',
+          titleColor: '#ffffff',
+          bodyColor: '#e8e8e8',
+          borderColor: '#2a2a2a',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: palette.mutedText }
+        },
+        y: {
+          grid: { color: palette.gridLine, drawBorder: false },
+          ticks: { color: palette.mutedText, stepSize: 10 }
+        }
+      }
+    }
+  });
+}
+
+initCharts();
+
+/* ────────────────────────────────
+   CHART CALLOUT HANDLERS
+────────────────────────────────── */
+function scrollToLeadCards() {
+  const section = document.querySelector('.card-lift');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function scrollToHighestEngagement() {
+  const message = 'Highest engagement: 4891 E Sunrise Dr (61 views on Sun). Brandon Allen viewed this property twice.';
+  alert(message);
+}
+
+function scrollToBrandonCard() {
+  const sections = document.querySelectorAll('.card-lift');
+  if (sections.length > 0) {
+    sections[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+</script>
 </body>
 </html>
