@@ -163,6 +163,7 @@ body {
   background: #1e1e1e;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
 }
 .chart-card-title {
   margin-bottom: 16px;
@@ -172,9 +173,40 @@ body {
   text-transform: uppercase;
   color: #555;
 }
+.chart-card-stat {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.05);
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-align: right;
+  font-size: 10px;
+  color: #555;
+}
+.chart-card-stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #22c55e;
+  margin-top: 2px;
+}
 .chart-canvas {
   width: 100%;
   height: 240px;
+}
+.chart-callout {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 11px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.chart-callout:hover {
+  color: #888;
+  text-decoration: underline;
 }
 
 /* ── Icon tile ── */
@@ -498,18 +530,26 @@ body {
           <div class="chart-canvas">
             <canvas id="pipelineChart"></canvas>
           </div>
+          <a class="chart-callout" onclick="scrollToLeadCards()">9 untouched leads — Follow up now →</a>
         </div>
         <div class="chart-card p-5 f3">
           <div class="chart-card-title">Listing Engagement</div>
           <div class="chart-canvas">
             <canvas id="engagementChart"></canvas>
           </div>
+          <a class="chart-callout" onclick="scrollToHighestEngagement()">4891 E Sunrise Dr has highest engagement — View listing →</a>
         </div>
         <div class="chart-card p-5 f3">
+          <div class="chart-card-stat">
+            <div style="font-size: 11px; color: #555; line-height: 1.2;">↑ +12 pts</div>
+            <div class="chart-card-stat-value">+12</div>
+            <div style="font-size: 9px; color: #555; margin-top: 2px;">Brandon · this week</div>
+          </div>
           <div class="chart-card-title">Lead Score Trend</div>
           <div class="chart-canvas">
             <canvas id="trendChart"></canvas>
           </div>
+          <a class="chart-callout" onclick="scrollToBrandonCard()">Brandon Allen +12 pts this week ↑ — Call now →</a>
         </div>
       </div>
 
@@ -1555,9 +1595,9 @@ function createChartPalette() {
     contacted: '#f59e0b',
     hot: '#3b82f6',
     closed: '#22c55e',
-    listing: '#3b82f6',
-    listingAlt: '#60a5fa',
-    listingAlt2: '#93c5fd',
+    listing: '#3B82F6',
+    listingAlt: '#A855F7',
+    listingAlt2: '#14B8A6',
     trendA: '#7c3aed',
     trendB: '#38bdf8',
     trendC: '#34d399',
@@ -1600,10 +1640,11 @@ function initCharts() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'bottom',
+          position: 'top',
+          align: 'end',
           labels: {
-            color: palette.mutedText,
-            font: { size: 11 },
+            color: '#555',
+            font: { size: 10 },
             usePointStyle: true,
             pointStyle: 'circle',
             padding: 12
@@ -1658,8 +1699,9 @@ function initCharts() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'bottom',
-          labels: { color: palette.mutedText, font: { size: 11 }, boxWidth: 10, padding: 12 }
+          position: 'top',
+          align: 'end',
+          labels: { color: '#555', font: { size: 10 }, boxWidth: 10, padding: 12 }
         },
         tooltip: {
           backgroundColor: '#111111',
@@ -1724,8 +1766,9 @@ function initCharts() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'bottom',
-          labels: { color: palette.mutedText, font: { size: 11 }, boxWidth: 10, padding: 12 }
+          position: 'top',
+          align: 'end',
+          labels: { color: '#555', font: { size: 10 }, boxWidth: 10, padding: 12 }
         },
         tooltip: {
           backgroundColor: '#111111',
@@ -1750,6 +1793,28 @@ function initCharts() {
 }
 
 initCharts();
+
+/* ────────────────────────────────
+   CHART CALLOUT HANDLERS
+────────────────────────────────── */
+function scrollToLeadCards() {
+  const section = document.querySelector('.card-lift');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function scrollToHighestEngagement() {
+  const message = 'Highest engagement: 4891 E Sunrise Dr (61 views on Sun). Brandon Allen viewed this property twice.';
+  alert(message);
+}
+
+function scrollToBrandonCard() {
+  const sections = document.querySelectorAll('.card-lift');
+  if (sections.length > 0) {
+    sections[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 </script>
 </body>
 </html>
