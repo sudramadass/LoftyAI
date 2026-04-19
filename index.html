@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lofty — AI Morning Briefing</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+* { font-family: 'Sora', sans-serif; }
+
+body {
+  background: #111111;
+  min-height: 100vh;
+  color: #e8e8e8;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+}
+
+/* ── Surface stack (Suno-style tonal dark layers) ── */
+.surface-0  { background: #0d0d0d; }   /* deepest */
+.surface-1  { background: #1a1a1a; }   /* sidebar */
+.surface-2  { background: #222222; }   /* cards */
+.surface-3  { background: #2a2a2a; }   /* elevated / hover */
+
+/* ── Cards — no hard borders, tonal contrast ── */
+.card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.card-sm {
+  background: #1e1e1e;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── Left sidebar ── */
+.sidebar {
+  background: #141414;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  width: 200px;
+  flex-shrink: 0;
+}
+
+/* ── Nav link (sidebar) ── */
+.nav-link {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 14px; border-radius: 8px;
+  font-size: 13.5px; font-weight: 500; color: #888;
+  cursor: pointer; transition: all .18s; text-decoration: none;
+}
+.nav-link:hover { background: rgba(255,255,255,.05); color: #e8e8e8; }
+.nav-link.active { background: rgba(255,255,255,.08); color: #fff; font-weight: 600; }
+
+/* ── Top strip (inside main) ── */
+.top-strip {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #141414;
+}
+
+/* ── View toggle ── */
+.toggle-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 15px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 500; color: #777;
+  cursor: pointer; transition: all .18s; border: none;
+  background: transparent;
+}
+.toggle-btn.active {
+  background: rgba(255,255,255,.1);
+  color: #fff; font-weight: 600;
+}
+
+/* ── Priority bands ── */
+.band-urgent { background: #777777; }
+.band-warm   { background: #999999; }
+.band-today  { background: #bbbbbb; }
+
+/* ── Pill ── */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 100px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .05em;
+}
+
+/* ── Chip ── */
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 100px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .03em;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; color: #0d0d0d;
+  background: #e8e8e8; border: none; cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btn-primary:hover { background: #fff; transform: translateY(-1px); }
+.btn-primary:active { transform: scale(.97); }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 13px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 500; color: #aaa;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  cursor: pointer; transition: all .15s;
+}
+.btn-secondary:hover { background: rgba(255,255,255,.10); color: #e8e8e8; }
+.btn-secondary:active { transform: scale(.97); }
+
+.btn-why {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; color: #c4c4c4;
+  background: transparent;
+  border: 1px solid rgba(180,180,180,.3);
+  cursor: pointer; transition: all .15s;
+}
+.btn-why:hover { background: rgba(180,180,180,.08); border-color: rgba(180,180,180,.5); }
+
+/* ── Why panel ── */
+.why-panel {
+  display: grid; grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows .38s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+}
+.why-panel > .why-inner { overflow: hidden; }
+.why-panel.open { grid-template-rows: 1fr; opacity: 1; }
+
+/* ── Confidence bar ── */
+.conf-track { height: 3px; border-radius: 2px; background: rgba(255,255,255,.08); overflow: hidden; }
+.conf-fill  { height: 100%; border-radius: 2px; background: #c4c4c4; }
+
+/* ── Avatar ── */
+.avatar {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+
+/* ── Chart cards ── */
+.chart-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .chart-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.chart-card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.chart-card-title {
+  margin-bottom: 16px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #555;
+}
+.chart-canvas {
+  width: 100%;
+  height: 240px;
+}
+
+/* ── Icon tile ── */
+.icon-tile {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* ── Stat tile ── */
+.stat-tile {
+  background: rgba(255,255,255,.04);
+  border-radius: 10px; padding: 13px 15px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+
+/* ── Card lift ── */
+.card-lift { transition: background .18s, transform .18s; }
+.card-lift:hover { background: #252525; transform: translateY(-1px); }
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulseDot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.45; transform:scale(.78); }
+}
+@keyframes floatBob {
+  0%,100% { transform:translateY(0); }
+  50%      { transform:translateY(-4px); }
+}
+@keyframes breathe {
+  0%,100% { opacity:1; }
+  50%      { opacity:.6; }
+}
+
+.f1 { animation: fadeInUp .42s ease both; }
+.f2 { animation: fadeInUp .42s .07s ease both; }
+.f3 { animation: fadeInUp .42s .14s ease both; }
+.f4 { animation: fadeInUp .42s .21s ease both; }
+.f5 { animation: fadeInUp .42s .28s ease both; }
+
+.pulse { animation: pulseDot 2.2s ease-in-out infinite; }
+.bob   { animation: floatBob 3s ease-in-out infinite; }
+.breathe { animation: breathe 3s ease-in-out infinite; }
+
+/* ── Live dot ── */
+.live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#c4c4c4; }
+
+/* ── Right sidebar ── */
+#right-sidebar { transition: transform .42s cubic-bezier(.16,1,.3,1); }
+
+/* ── Divider ── */
+.soft-divider { height:1px; background:rgba(255,255,255,.05); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:2px; }
+
+/* ── Classic cards ── */
+.classic-card {
+  background: #1e1e1e; border-radius: 12px; padding: 20px;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+/* ── Nav pill (top) ── */
+.nav-pill-top {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 100px;
+  font-size: 12.5px; font-weight: 500; color: #888;
+  cursor: pointer; transition: all .18s; text-decoration: none;
+  background: transparent;
+}
+.nav-pill-top:hover { color: #e8e8e8; background: rgba(255,255,255,.06); }
+.nav-pill-top.active { background: rgba(255,255,255,.1); color: #fff; font-weight: 600; }
+
+/* ── Chat Panel ── */
+#chat-panel { transition: transform .42s cubic-bezier(.16,1,.3,1); }
+#chat-panel.open { transform: translateY(0) !important; }
+.chat-bubble-user { background: #2a2a2a; border-radius: 16px 16px 4px 16px; }
+.chat-bubble-ai { background: #1e1e1e; border: 1px solid rgba(255,255,255,.06); border-radius: 16px 16px 16px 4px; }
+.chat-input-box {
+  background: #1e1e1e; border: 1px solid rgba(255,255,255,.1); border-radius: 10px;
+  color: #e8e8e8; outline: none; resize: none; width: 100%;
+  font-family: 'Sora', sans-serif;
+}
+.chat-input-box:focus { border-color: rgba(255,255,255,.2); }
+.chat-input-box::placeholder { color: #444; }
+.chat-send-btn {
+  background: #e8e8e8; color: #0d0d0d; border-radius: 8px; border: none;
+  cursor: pointer; transition: background .15s; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+}
+.chat-send-btn:hover { background: #fff; }
+.chat-send-btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; }
+
+/* ── Filter pills (CRM) ── */
+.filter-pill {
+  padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,.08); background: transparent;
+  color: #666; cursor: pointer; transition: all .15s;
+}
+.filter-pill:hover { color: #aaa; border-color: rgba(255,255,255,.15); }
+.filter-pill.active { background: rgba(255,255,255,.08); color: #e8e8e8; border-color: rgba(255,255,255,.15); }
+
+/* ── CRM row ── */
+.crm-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 90px 80px 110px 130px;
+  gap: 12px; align-items: center;
+  padding: 11px 16px; cursor: pointer; transition: background .15s;
+}
+.crm-row:hover { background: rgba(255,255,255,.03); }
+.crm-score-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,.07); overflow: hidden; }
+.crm-score-fill { height: 100%; border-radius: 2px; background: #888; }
+.type-badge {
+  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 100px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  background: rgba(255,255,255,.07); color: #777;
+}
+</style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+<!-- ═══════════════════════════════════
+     LEFT SIDEBAR
+═══════════════════════════════════ -->
+<aside class="sidebar hidden md:flex flex-col h-screen flex-shrink-0 py-6 overflow-y-auto">
+
+  <!-- Logo -->
+  <div class="px-5 mb-8">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:#3d3d3d;">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+          <path d="M6 4v24M6 16L21 4M15 18l12 10" stroke="#e8e8e8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="text-[17px] font-bold text-white tracking-tight">LOFTY</span>
+    </div>
+  </div>
+
+  <!-- User -->
+  <div class="px-4 mb-6 flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-bold text-white" style="background:#2a2a2a;">SM</div>
+    <div class="min-w-0">
+      <div class="text-[12.5px] font-semibold text-white truncate">Sarah Martinez</div>
+      <div class="text-[11px] text-[#555]">Keller Williams AZ</div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="flex-1 flex flex-col gap-0.5 px-3">
+    <a href="#" onclick="showView('ai');setNavActive(this)" class="nav-link active" id="nav-ai">
+      <span class="material-symbols-outlined text-[18px]">smart_toy</span>
+      AI Copilots
+    </a>
+    <a href="#" onclick="showView('crm');setNavActive(this)" class="nav-link" id="nav-crm">
+      <span class="material-symbols-outlined text-[18px]">group</span>
+      CRM
+    </a>
+    <a href="#" onclick="showView('classic');setNavActive(this)" class="nav-link" id="nav-classic">
+      <span class="material-symbols-outlined text-[18px]">real_estate_agent</span>
+      Transactions
+    </a>
+    <a href="#" class="nav-link">
+      <span class="material-symbols-outlined text-[18px]">campaign</span>
+      Marketing
+    </a>
+    <a href="#" class="nav-link">
+      <span class="material-symbols-outlined text-[18px]">list_alt</span>
+      Listings
+    </a>
+    <a href="#" class="nav-link">
+      <span class="material-symbols-outlined text-[18px]">bar_chart</span>
+      Reporting
+    </a>
+    <a href="#" class="nav-link">
+      <span class="material-symbols-outlined text-[18px]">notifications</span>
+      Notifications
+    </a>
+  </div>
+
+  <!-- New Campaign -->
+  <div class="px-4 mt-4 mb-4">
+    <button class="btn-primary w-full justify-center text-[12.5px]">
+      <span class="material-symbols-outlined text-[15px]">add</span>
+      New Campaign
+    </button>
+  </div>
+
+
+</aside>
+
+
+<!-- ═══════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════ -->
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+  <!-- Top strip -->
+  <div class="top-strip flex-shrink-0 flex items-center justify-between px-6 py-3 gap-4">
+
+    <!-- View toggle -->
+    <div class="flex items-center gap-1 p-1 rounded-lg" style="background:rgba(255,255,255,.05);">
+      <button id="btn-ai" onclick="showView('ai')" class="toggle-btn active">
+        <span class="live-dot pulse" style="width:5px;height:5px;"></span>
+        AI Morning Briefing
+      </button>
+      <button id="btn-classic" onclick="showView('classic')" class="toggle-btn">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+        </svg>
+        Classic Dashboard
+      </button>
+    </div>
+
+    <!-- Right: time + search + menu -->
+    <div class="flex items-center gap-3">
+      <div id="live-time" class="text-[11.5px] text-[#555] hidden lg:block"></div>
+      <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors">
+        <span class="material-symbols-outlined text-[18px]">search</span>
+      </button>
+      <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors relative">
+        <span class="material-symbols-outlined text-[18px]">notifications</span>
+        <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#c4c4c4]"></span>
+      </button>
+      <button onclick="openSidebar()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors">
+        <span class="material-symbols-outlined text-[18px]">menu</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scrollable content area -->
+  <div class="flex-1 overflow-y-auto px-6 py-6">
+
+
+  <!-- ══════════════════════════════════
+       AI MORNING BRIEFING VIEW
+  ══════════════════════════════════ -->
+  <div id="view-ai">
+  <div class="flex gap-5 max-w-[1080px]">
+
+    <!-- ── MAIN COLUMN ── -->
+    <div class="flex-1 min-w-0">
+
+      <!-- Header -->
+      <div class="flex flex-wrap items-start justify-between gap-4 mb-5 f1">
+        <div>
+          <h1 class="text-[28px] font-bold text-white leading-tight tracking-tight mb-1">Good morning, Sarah.</h1>
+          <p class="text-[13px] text-[#666]">Your AI worked overnight. Here's what moves the needle today.</p>
+        </div>
+        <!-- AI overnight badge -->
+        <div class="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:opacity-80 transition-opacity"
+             style="background:#1e1e1e;border:1px solid rgba(180,180,180,.2);">
+          <div class="bob">
+            <span class="material-symbols-outlined text-[20px]" style="color:#c4c4c4;">nights_stay</span>
+          </div>
+          <div>
+            <div class="text-[11px] text-[#666]">AI completed overnight</div>
+            <div class="text-[13px] font-semibold text-white">47 automated actions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Agent Activity Summary -->
+      <div class="card mb-4 f2 overflow-hidden">
+        <div class="px-5 pt-4 pb-3 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,.05);">
+          <h3 class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Agent Activity Summary</h3>
+          <div class="flex items-center gap-3">
+            <a href="#" class="text-[11.5px] font-medium hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full log</a>
+            <button class="text-[11.5px] font-medium px-3 py-1.5 rounded-lg text-[#666]"
+                    style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);">Manage agents</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+          <!-- Completed -->
+          <div class="px-5 py-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#bbbbbb;"></span>
+              <span class="text-[10.5px] font-bold uppercase tracking-wider text-[#aaa]">COMPLETED</span>
+            </div>
+            <p class="text-[12.5px] text-[#666] leading-relaxed">Sent 12 follow-up emails, updated 35 lead scores on new behavior, identified 8 new buyer-listing matches overnight.</p>
+          </div>
+          <!-- Arrow 1 -->
+          <div class="hidden md:flex items-center justify-center flex-shrink-0 px-1">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <path d="M6 16H24M18 10L24 16L18 22" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <!-- Monitoring -->
+          <div class="px-5 py-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#777777;"></span>
+              <span class="text-[10.5px] font-bold uppercase tracking-wider text-[#aaa]">MONITORING</span>
+            </div>
+            <p class="text-[12.5px] text-[#666] leading-relaxed">Tracking repeat activity on 5 warm leads, 3 transactions with deadlines in 48 hrs, hot sheet updates in Scottsdale & Tempe.</p>
+          </div>
+          <!-- Arrow 2 -->
+          <div class="hidden md:flex items-center justify-center flex-shrink-0 px-1">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <path d="M6 16H24M18 10L24 16L18 22" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <!-- Planned -->
+          <div class="px-5 py-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#777777;"></span>
+              <span class="text-[10.5px] font-bold uppercase tracking-wider text-[#aaa]">PLANNED</span>
+            </div>
+            <p class="text-[12.5px] text-[#666] leading-relaxed">Next: Prepare showing outreach for high-intent buyers. Escalate unresolved risks if docs not received by 2 PM.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card p-5 f3">
+          <div class="chart-card-title">Lead Pipeline</div>
+          <div class="chart-canvas">
+            <canvas id="pipelineChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card p-5 f3">
+          <div class="chart-card-title">Listing Engagement</div>
+          <div class="chart-canvas">
+            <canvas id="engagementChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card p-5 f3">
+          <div class="chart-card-title">Lead Score Trend</div>
+          <div class="chart-canvas">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CARD 1 — URGENT: Brandon Allen ═══ -->
+      <div class="card overflow-hidden mb-3 card-lift f3">
+        <div class="flex">
+          <div class="band-urgent w-[4px] flex-shrink-0"></div>
+          <div class="flex-1 p-5">
+
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span class="pill" style="background:rgba(130,130,130,.15);color:#aaaaaa;">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#888] pulse"></span>
+                  URGENT
+                </span>
+                <span class="text-[12px] text-[#555]">Rate lock expires in 4 days</span>
+              </div>
+              <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-[10.5px] text-[#555] mb-0.5">Lead Score</div>
+                <div class="text-[26px] font-bold leading-none" style="color:#bbbbbb;">88</div>
+              </div>
+            </div>
+
+            <div class="flex gap-3 mb-3">
+              <div class="avatar" style="background:rgba(130,130,130,.12);">
+                <span style="color:#aaaaaa;font-weight:700;">BA</span>
+              </div>
+              <div>
+                <div class="text-[15px] font-semibold text-white leading-snug">Brandon Allen</div>
+                <div class="text-[12px] text-[#555]">Buyer · Tucson, AZ · $606K–$860K budget</div>
+                <p class="text-[12.5px] text-[#888] leading-relaxed mt-1.5">
+                  Viewed <span class="text-white font-medium">4891 E Sunrise Dr, Tucson 85718</span> twice and 2 other listings in 48 hrs.
+                  Rate lock expires <span style="color:#aaaaaa;font-weight:500;">April 22</span>.
+                  Last contact: <span style="color:#999999;">14 days ago</span>.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button class="btn-primary">
+                <span class="material-symbols-outlined text-[14px]">phone</span> Call Now
+              </button>
+              <button class="btn-secondary">
+                <span class="material-symbols-outlined text-[14px]">sms</span> Send Text
+              </button>
+              <button class="btn-secondary">
+                <span class="material-symbols-outlined text-[14px]">mail</span> Email
+              </button>
+              <button class="btn-secondary">
+                <span class="material-symbols-outlined text-[14px]">calendar_month</span> Schedule Showing
+              </button>
+              <button onclick="toggleWhy('w1',this)" class="btn-why ml-auto">
+                <span class="material-symbols-outlined text-[13px]">info</span> Why this?
+              </button>
+            </div>
+
+            <div id="w1" class="why-panel">
+              <div class="why-inner">
+                <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.06);">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Signal Trail — Why Brandon is #1 today</div>
+                    <div class="flex items-center gap-2">
+                    </div>
+                  </div>
+                  <div class="space-y-2.5">
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(130,130,130,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">Rate lock expires April 22 — 4 days left</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Deal probability drops 80% if he misses this window.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(130,130,130,.12);color:#aaaaaa;">URGENT</span>
+                    </div>
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(180,180,180,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">Viewed 4891 E Sunrise Dr twice + 2 listings in 48 hrs</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">22 min total session time. High purchase intent.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(180,180,180,.12);color:#c4c4c4;">HIGH</span>
+                    </div>
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(150,150,150,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">Lead score jumped 67→88 this week (+31%)</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Competitor capture risk rises after 48 hrs without contact.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(150,150,150,.12);color:#999999;">MED</span>
+                    </div>
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(150,150,150,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">14 days since last agent contact</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Sourced via Google — high-intent search buyer.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(150,150,150,.12);color:#aaaaaa;">RISK</span>
+                    </div>
+                  </div>
+                  <div class="mt-3 p-4 rounded-lg" style="background:rgba(180,180,180,.06);border:1px solid rgba(180,180,180,.15);">
+                    <div class="text-[10px] font-bold uppercase tracking-wider mb-1" style="color:#c4c4c4;">Recommended Next Step</div>
+                    <div class="text-[12.5px] font-semibold text-white mb-0.5">Call now to discuss Pinnacle Peak</div>
+                    <div class="text-[11.5px] text-[#666]"><span class="text-[#aaa] font-medium">Why:</span> High intent + expiring rate lock.</div>
+                    <div class="text-[11.5px] mt-0.5 font-medium" style="color:#bbbbbb;"><span class="font-bold">Expected:</span> Likely to schedule showing.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══ CARD 2 — WARM: Samuel Scott ═══ -->
+      <div class="card overflow-hidden mb-3 card-lift f4">
+        <div class="flex">
+          <div class="band-warm w-[4px] flex-shrink-0"></div>
+          <div class="flex-1 p-5">
+
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span class="pill" style="background:rgba(150,150,150,.15);color:#cccccc;">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#999]"></span>
+                  WARM
+                </span>
+                <span class="text-[12px] text-[#555]">Back to site · 12-day absence</span>
+              </div>
+              <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-[10.5px] text-[#555] mb-0.5">Lead Score</div>
+                <div class="text-[26px] font-bold leading-none" style="color:#999999;">74</div>
+              </div>
+            </div>
+
+            <div class="flex gap-3 mb-3">
+              <div class="avatar" style="background:rgba(150,150,150,.12);">
+                <span style="color:#cccccc;font-weight:700;">SS</span>
+              </div>
+              <div>
+                <div class="text-[15px] font-semibold text-white leading-snug">Samuel Scott</div>
+                <div class="text-[12px] text-[#555]">Buyer · Mesa, AZ · $319K–$401K budget</div>
+                <p class="text-[12.5px] text-[#888] leading-relaxed mt-1.5">
+                  Returned after 12-day absence. Spent 19 min on <span class="text-white font-medium">3488 Cedar St, Mesa 85201</span> — viewed floor plan 3× and school district page.
+                  <span style="color:#cccccc;font-weight:500;">2 new price-reduced listings</span> match his saved search.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button class="btn-primary" style="background:#3a3a3a;color:#e0e0e0;">
+                <span class="material-symbols-outlined text-[14px]">sms</span> Send Text
+              </button>
+              <button class="btn-secondary">
+                <span class="material-symbols-outlined text-[14px]">calendar_month</span> Schedule Showing
+              </button>
+              <button class="btn-secondary">
+                <span class="material-symbols-outlined text-[14px]">home</span> Send Listings
+              </button>
+              <button onclick="toggleWhy('w2',this)" class="btn-why ml-auto">
+                <span class="material-symbols-outlined text-[13px]">info</span> Why this?
+              </button>
+            </div>
+
+            <div id="w2" class="why-panel">
+              <div class="why-inner">
+                <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.06);">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Signal Trail — Why Samuel is #2 today</div>
+                    <div class="flex items-center gap-2">
+                    </div>
+                  </div>
+                  <div class="space-y-2.5">
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(160,160,160,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">Back to site after 12-day absence</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Return visits show 2.4× higher conversion vs. first-time visits.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(160,160,160,.12);color:#aaaaaa;">HIGH</span>
+                    </div>
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(180,180,180,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">19-min session on 3488 Cedar St — floor plan viewed 3×</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Deep engagement. Also browsed Mesa school district — family buyer signal.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(180,180,180,.12);color:#c4c4c4;">HIGH</span>
+                    </div>
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(170,170,170,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">2 price-reduced Mesa listings match his saved search</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Mesa 85201, $329K–$395K. Lead with inventory, not a check-in.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(170,170,170,.12);color:#bbbbbb;">MED</span>
+                    </div>
+                  </div>
+                  <div class="mt-3 p-4 rounded-lg" style="background:rgba(180,180,180,.06);border:1px solid rgba(180,180,180,.15);">
+                    <div class="text-[10px] font-bold uppercase tracking-wider mb-1" style="color:#c4c4c4;">Recommended Next Step</div>
+                    <div class="text-[12.5px] font-semibold text-white mb-0.5">Send price-reduced listings + schedule showing</div>
+                    <div class="text-[11.5px] text-[#666]"><span class="text-[#aaa] font-medium">Why:</span> Re-engagement window is now.</div>
+                    <div class="text-[11.5px] mt-0.5 font-medium" style="color:#bbbbbb;"><span class="font-bold">Expected:</span> High probability of showing request.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══ CARD 3 — TODAY: Kevin Lee ═══ -->
+      <div class="card overflow-hidden mb-5 card-lift f5">
+        <div class="flex">
+          <div class="band-today w-[4px] flex-shrink-0"></div>
+          <div class="flex-1 p-5">
+
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span class="pill" style="background:rgba(180,180,180,.15);color:#c4c4c4;">
+                  <span class="material-symbols-outlined text-[12px]">cake</span>
+                  TODAY
+                </span>
+                <span class="text-[12px] text-[#555]">Birthday · Past client · Investment opportunity</span>
+              </div>
+              <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-[10.5px] text-[#555] mb-0.5">Relationship</div>
+                <div class="text-[12.5px] font-semibold" style="color:#c4c4c4;">Past Client</div>
+              </div>
+            </div>
+
+            <div class="flex gap-3 mb-3">
+              <div class="avatar" style="background:rgba(180,180,180,.12);">
+                <span style="color:#c4c4c4;font-weight:700;">KL</span>
+              </div>
+              <div>
+                <div class="text-[15px] font-semibold text-white leading-snug">Kevin Lee</div>
+                <div class="text-[12px] text-[#555]">Past Client · Closed · Surprise, AZ · 2 referrals sent</div>
+                <p class="text-[12.5px] text-[#888] leading-relaxed mt-1.5">
+                  Today is Kevin's birthday. Last contact <span style="color:#999999;font-weight:500;">28 days ago</span> — approaching cold zone.
+                  Mentioned interest in <span class="text-white font-medium">Surprise investment properties</span>.
+                  3 off-market deals match his criteria at 6–7% cap rate.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button class="btn-primary" style="background:#2a2a2a;color:#d4d4d4;">
+                <span class="material-symbols-outlined text-[14px]">mail</span> Send Birthday Note
+              </button>
+              <button class="btn-secondary">
+                <span class="material-symbols-outlined text-[14px]">phone</span> Call
+              </button>
+              <button class="btn-secondary">
+                <span class="material-symbols-outlined text-[14px]">home_work</span> Send Deals
+              </button>
+              <button onclick="toggleWhy('w3',this)" class="btn-why ml-auto">
+                <span class="material-symbols-outlined text-[13px]">info</span> Why this?
+              </button>
+            </div>
+
+            <div id="w3" class="why-panel">
+              <div class="why-inner">
+                <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.06);">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">AI Signal Trail — Why Kevin is included today</div>
+                    <div class="flex items-center gap-2">
+                    </div>
+                  </div>
+                  <div class="space-y-2.5">
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(165,165,165,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">Birthday today — highest-performing relationship touchpoint</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Agents who send birthday messages see 3.2× more referrals.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(165,165,165,.12);color:#bbbbbb;">HIGH</span>
+                    </div>
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(150,150,150,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">28-day contact gap — approaching cold zone</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">Past clients disengage after ~45 days.</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(150,150,150,.12);color:#aaaaaa;">RISK</span>
+                    </div>
+                    <div class="flex items-start gap-3 pl-3" style="border-left:2px solid rgba(170,170,170,.5);">
+                      <div class="flex-1">
+                        <div class="text-[12.5px] font-semibold text-white">3 off-market Surprise deals match his investment criteria</div>
+                        <div class="text-[11.5px] text-[#555] mt-0.5">$285K–$380K, 6–7% cap rate. Real hook beyond "Happy Birthday."</div>
+                      </div>
+                      <span class="chip flex-shrink-0" style="background:rgba(170,170,170,.12);color:#bbbbbb;">MED</span>
+                    </div>
+                  </div>
+                  <div class="mt-3 p-4 rounded-lg" style="background:rgba(180,180,180,.06);border:1px solid rgba(180,180,180,.15);">
+                    <div class="text-[10px] font-bold uppercase tracking-wider mb-1" style="color:#c4c4c4;">Recommended Next Step</div>
+                    <div class="text-[12.5px] font-semibold text-white mb-0.5">Send birthday note + attach 3 off-market deals</div>
+                    <div class="text-[11.5px] text-[#666]"><span class="text-[#aaa] font-medium">Why:</span> Natural re-engagement with real value.</div>
+                    <div class="text-[11.5px] mt-0.5 font-medium" style="color:#bbbbbb;"><span class="font-bold">Expected:</span> 3.2× referral likelihood.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Footer note -->
+      <div class="flex items-center gap-2 text-[11.5px] text-[#555] f5">
+        <span class="material-symbols-outlined text-[14px] flex-shrink-0" style="color:#c4c4c4;">auto_awesome</span>
+        AI analyzed 25 leads, 2 active transactions, and 4 pending tasks to surface these 3 priorities.
+        <a href="#" class="ml-1 font-semibold hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full pipeline →</a>
+      </div>
+
+    </div><!-- /main col -->
+
+
+    <!-- ── RIGHT STICKY RAIL ── -->
+    <div class="w-[240px] flex-shrink-0 hidden lg:block">
+    <div class="sticky top-0 space-y-3">
+
+      <!-- Today's Snapshot -->
+      <div class="card p-4 f1">
+        <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">Today's Snapshot</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="stat-tile">
+            <div class="text-[20px] font-bold text-white">25</div>
+            <div class="text-[11px] text-[#555] mt-0.5">Total Leads</div>
+            <div class="text-[10.5px] mt-1 font-medium" style="color:#999999;">9 untouched</div>
+          </div>
+          <div class="stat-tile">
+            <div class="text-[20px] font-bold text-white">2</div>
+            <div class="text-[11px] text-[#555] mt-0.5">Transactions</div>
+            <div class="text-[10.5px] mt-1 font-medium" style="color:#888888;">2 near deadline</div>
+          </div>
+          <div class="stat-tile">
+            <div class="text-[20px] font-bold text-white">4</div>
+            <div class="text-[11px] text-[#555] mt-0.5">Tasks Due</div>
+            <div class="text-[10.5px] mt-1 text-[#555]">Today</div>
+          </div>
+          <div class="stat-tile">
+            <div class="text-[20px] font-bold text-white">2</div>
+            <div class="text-[11px] text-[#555] mt-0.5">Showings</div>
+            <div class="text-[10.5px] mt-1 text-[#555]">2pm + 4:30pm</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Worked Overnight -->
+      <div class="card p-4 f2">
+        <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">AI Worked Overnight</div>
+        <div class="space-y-3">
+          <div class="flex items-center gap-2.5">
+            <div class="icon-tile" style="background:rgba(180,180,180,.1);">
+              <span class="material-symbols-outlined text-[16px]" style="color:#c4c4c4;">mail</span>
+            </div>
+            <div>
+              <div class="text-[12.5px] font-medium text-white">12 follow-up emails</div>
+              <div class="text-[11px] text-[#555]">Personalized by Smart Plans</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="icon-tile" style="background:rgba(160,160,160,.1);">
+              <span class="material-symbols-outlined text-[16px]" style="color:#aaaaaa;">bar_chart</span>
+            </div>
+            <div>
+              <div class="text-[12.5px] font-medium text-white">35 lead score updates</div>
+              <div class="text-[11px] text-[#555]">Based on site activity</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="icon-tile" style="background:rgba(170,170,170,.1);">
+              <span class="material-symbols-outlined text-[16px]" style="color:#bbbbbb;">group</span>
+            </div>
+            <div>
+              <div class="text-[12.5px] font-medium text-white">8 buyer-listing matches</div>
+              <div class="text-[11px] text-[#555]">Hot Sheet auto-matched</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hot Sheets -->
+      <div class="card p-4 f3">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[10px] font-bold uppercase tracking-widest text-[#555]">Hot Sheets · Live MLS</div>
+          <span class="live-dot pulse"></span>
+        </div>
+        <div class="space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="text-[12.5px] font-medium text-white">New Listings · Scottsdale</div>
+              <div class="text-[11px] text-[#555] mt-0.5">3 match Brandon Allen</div>
+            </div>
+            <span class="chip flex-shrink-0" style="background:rgba(180,180,180,.12);color:#c4c4c4;">+12</span>
+          </div>
+          <div class="soft-divider"></div>
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="text-[12.5px] font-medium text-white">Price Reduced · Mesa</div>
+              <div class="text-[11px] text-[#555] mt-0.5">2 match Samuel Scott</div>
+            </div>
+            <span class="chip flex-shrink-0" style="background:rgba(150,150,150,.12);color:#999999;">5</span>
+          </div>
+          <div class="soft-divider"></div>
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="text-[12.5px] font-medium text-white">Off-Market · Surprise</div>
+              <div class="text-[11px] text-[#555] mt-0.5">3 match Kevin Lee (investor)</div>
+            </div>
+            <span class="chip flex-shrink-0" style="background:rgba(170,170,170,.12);color:#bbbbbb;">3</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </div><!-- /right rail -->
+
+  </div><!-- /flex gap -->
+  </div><!-- /view-ai -->
+
+
+  <!-- ══════════════════════════════════
+       CLASSIC DASHBOARD VIEW
+  ══════════════════════════════════ -->
+  <div id="view-classic" class="hidden max-w-[1080px]">
+
+    <div class="mb-4 px-4 py-3 rounded-xl flex flex-wrap items-center gap-3 f1"
+         style="background:rgba(150,150,150,.08);border:1px solid rgba(150,150,150,.2);">
+      <span class="material-symbols-outlined text-[18px] flex-shrink-0" style="color:#999999;">info</span>
+      <p class="text-[12.5px] flex-1" style="color:#cccccc;">
+        <strong>This is what agents see today.</strong> Powerful data is here — but no clear answer to "what do I do first?" The AI is invisible.
+      </p>
+      <button onclick="showView('ai')" class="btn-primary text-[11.5px]" style="padding:6px 14px;">See AI Briefing →</button>
+    </div>
+
+    <div class="mb-5 f1">
+      <h2 class="text-[24px] font-bold text-white mb-1">Good Morning, Sarah ☀️</h2>
+      <p class="text-[13px] text-[#555]">My Dashboard · Today's Priorities</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 opacity-[0.65]">
+      <div class="classic-card f2">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[12.5px] font-semibold text-[#888]">Today's New Leads</div>
+          <span class="text-[11px] font-semibold" style="color:#999999;">9 untouched</span>
+        </div>
+        <div class="text-[28px] font-bold text-white mb-3">25</div>
+        <div class="space-y-1.5 text-[11.5px]">
+          <div class="flex justify-between items-center py-1" style="border-bottom:1px solid rgba(255,255,255,.05);">
+            <span class="text-[#777]">Brandon Allen</span><span class="font-bold" style="color:#bbbbbb;">88</span>
+          </div>
+          <div class="flex justify-between items-center py-1" style="border-bottom:1px solid rgba(255,255,255,.05);">
+            <span class="text-[#777]">Samuel Scott</span><span class="font-bold" style="color:#999999;">74</span>
+          </div>
+          <div class="flex justify-between items-center py-1">
+            <span class="text-[#777]">Emily Wilson</span><span class="font-bold" style="color:#aaaaaa;">61</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="classic-card f2">
+        <div class="text-[12.5px] font-semibold text-[#888] mb-3">Today's Opportunities</div>
+        <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+          <div class="rounded-lg p-2" style="background:rgba(255,255,255,.04);">
+            <div class="text-[18px] font-bold text-white">6</div>
+            <div class="text-[10.5px] text-[#555]">High Intent</div>
+          </div>
+          <div class="rounded-lg p-2" style="background:rgba(255,255,255,.04);">
+            <div class="text-[18px] font-bold text-white">4</div>
+            <div class="text-[10.5px] text-[#555]">Nurture</div>
+          </div>
+          <div class="rounded-lg p-2" style="background:rgba(255,255,255,.04);">
+            <div class="text-[18px] font-bold text-white">8</div>
+            <div class="text-[10.5px] text-[#555]">New Leads</div>
+          </div>
+        </div>
+        <div class="space-y-1 text-[11.5px] text-[#555]">
+          <div>Brandon Allen · Active Buyer</div>
+          <div>Samuel Scott · Buyer (returned)</div>
+          <div>Fatima Jackson · Warm · Landlord</div>
+        </div>
+      </div>
+
+      <div class="classic-card f2">
+        <div class="text-[12.5px] font-semibold text-[#888] mb-3">Active Transactions</div>
+        <div class="text-[28px] font-bold text-white mb-3">2</div>
+        <div class="space-y-1.5 text-[11.5px]">
+          <div class="flex justify-between py-1" style="border-bottom:1px solid rgba(255,255,255,.05);">
+            <span class="text-[#777]">2847 S Rural Rd</span><span class="font-semibold" style="color:#888888;">Deadline 48hr</span>
+          </div>
+          <div class="flex justify-between py-1">
+            <span class="text-[#777]">1204 W Baseline</span><span class="font-semibold" style="color:#bbbbbb;">On Track</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="classic-card f3">
+        <div class="text-[12.5px] font-semibold text-[#888] mb-2">Hot Sheet · Scottsdale</div>
+        <div class="text-[28px] font-bold text-white mb-1">+15</div>
+        <div class="text-[11px] text-[#555] mb-2">New listings this week</div>
+        <div class="text-[11.5px] space-y-1 text-[#555]">
+          <div>8921 E Pinnacle Peak · $749K</div>
+          <div>4891 E Sunrise Dr · $819K</div>
+          <div>7711 N Pima Rd · $695K</div>
+        </div>
+      </div>
+
+      <div class="classic-card f3">
+        <div class="text-[12.5px] font-semibold text-[#888] mb-2">Tasks Due Today</div>
+        <div class="text-[28px] font-bold text-white mb-3">4</div>
+        <div class="space-y-1.5 text-[11.5px] text-[#555]">
+          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#777]"></span>Follow-up: Brandon Allen call</div>
+          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#999]"></span>Review escrow docs: Rural Rd</div>
+          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full" style="background:#c4c4c4;"></span>Birthday: Kevin Lee</div>
+          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>Campaign review: Mesa</div>
+        </div>
+      </div>
+
+      <div class="classic-card f3">
+        <div class="text-[12.5px] font-semibold text-[#888] mb-2">AI Prediction Accuracy</div>
+        <div class="text-[28px] font-bold text-white mb-1">87%</div>
+        <div class="text-[11px] font-semibold mb-2" style="color:#bbbbbb;">↑ +4% vs last month</div>
+        <div class="conf-track"><div class="conf-fill" style="width:87%;"></div></div>
+        <div class="text-[11px] text-[#555] mt-2">Top ranked leads converted this month</div>
+      </div>
+    </div>
+
+  </div><!-- /view-classic -->
+
+
+  <!-- ══════════════════════════════════
+       CRM VIEW
+  ══════════════════════════════════ -->
+  <div id="view-crm" class="hidden max-w-[1080px]">
+
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
+      <div>
+        <h1 class="text-[22px] font-bold text-white mb-1">CRM · All Leads</h1>
+        <p class="text-[13px] text-[#555]">26 leads · Sorted by AI score · Click any row to view details</p>
+      </div>
+      <div class="relative">
+        <span class="material-symbols-outlined text-[16px] text-[#555] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">search</span>
+        <input id="crm-search" oninput="filterLeads()" placeholder="Search by name, email, city…"
+               style="background:#1e1e1e;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 14px 8px 36px;font-size:12.5px;color:#e8e8e8;outline:none;width:240px;font-family:'Sora',sans-serif;"
+               onfocus="this.style.borderColor='rgba(255,255,255,.18)'"
+               onblur="this.style.borderColor='rgba(255,255,255,.08)'" />
+      </div>
+    </div>
+
+    <!-- Type filter pills -->
+    <div class="flex flex-wrap gap-1.5 mb-4 f1">
+      <button onclick="setLeadFilter('All')" class="filter-pill active" data-filter="All">All (26)</button>
+      <button onclick="setLeadFilter('Buyer')" class="filter-pill" data-filter="Buyer">Buyer</button>
+      <button onclick="setLeadFilter('Seller')" class="filter-pill" data-filter="Seller">Seller</button>
+      <button onclick="setLeadFilter('Investor')" class="filter-pill" data-filter="Investor">Investor</button>
+      <button onclick="setLeadFilter('Renter')" class="filter-pill" data-filter="Renter">Renter</button>
+      <button onclick="setLeadFilter('Agent')" class="filter-pill" data-filter="Agent">Agent</button>
+      <button onclick="setLeadFilter('Landlord')" class="filter-pill" data-filter="Landlord">Landlord</button>
+      <button onclick="setLeadFilter('Homeowner')" class="filter-pill" data-filter="Homeowner">Homeowner</button>
+      <button onclick="setLeadFilter('Other')" class="filter-pill" data-filter="Other">Other</button>
+    </div>
+
+    <!-- Lead table -->
+    <div class="card overflow-hidden f2">
+      <div class="crm-row border-b border-[rgba(255,255,255,.05)]" style="cursor:default;padding:8px 16px;">
+        <div></div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Lead</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Type</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">AI Score</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Source</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Budget / City</div>
+      </div>
+      <div id="crm-lead-list"></div>
+    </div>
+
+  </div><!-- /view-crm -->
+
+
+  </div><!-- /scrollable content -->
+</div><!-- /main flex col -->
+
+
+<!-- ═══════════════════════════════════
+     OVERLAY + RIGHT SIDEBAR
+═══════════════════════════════════ -->
+<div class="fixed inset-0 z-40 opacity-0 pointer-events-none transition-opacity duration-500" id="sidebar-overlay"
+     onclick="closeSidebar()" style="background:rgba(0,0,0,.6);backdrop-filter:blur(4px);"></div>
+
+<aside id="right-sidebar"
+       class="fixed top-0 right-0 h-screen w-full max-w-sm z-50 translate-x-full overflow-y-auto p-6"
+       style="background:#141414;border-left:1px solid rgba(255,255,255,.08);">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-[17px] font-bold text-white">Overview</h2>
+    <button onclick="closeSidebar()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-white hover:bg-white/5 transition-colors">
+      <span class="material-symbols-outlined text-[18px]">close</span>
+    </button>
+  </div>
+  <div class="flex flex-col gap-4">
+
+    <div class="card-sm p-4">
+      <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">AI Completed Overnight</div>
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(180,180,180,.12);border:1px solid rgba(180,180,180,.2);">
+          <span class="material-symbols-outlined text-[18px]" style="color:#c4c4c4;">auto_awesome</span>
+        </div>
+        <div>
+          <div class="text-[20px] font-bold text-white">47</div>
+          <div class="text-[11px] text-[#555]">Automated Actions</div>
+        </div>
+      </div>
+      <div class="space-y-1.5 text-[12px] text-[#777]">
+        <div class="flex justify-between"><span>Emails sent</span><span class="font-semibold text-white">12</span></div>
+        <div class="flex justify-between"><span>Score updates</span><span class="font-semibold text-white">35</span></div>
+        <div class="flex justify-between"><span>New matches</span><span class="font-semibold text-white">8</span></div>
+      </div>
+    </div>
+
+    <div class="card-sm p-4">
+      <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">Today's Snapshot</div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">23</div><div class="text-[11px] text-[#555]">Total Leads</div></div>
+        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">3</div><div class="text-[11px] text-[#555]">Transactions</div></div>
+        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">4</div><div class="text-[11px] text-[#555]">Tasks Due</div></div>
+        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">2</div><div class="text-[11px] text-[#555]">Showings</div></div>
+      </div>
+    </div>
+
+    <div class="card-sm p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-[10px] font-bold uppercase tracking-widest text-[#555]">Hot Sheets (Live MLS)</div>
+        <span class="live-dot pulse"></span>
+      </div>
+      <div class="space-y-2.5 text-[12px]">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full" style="background:#c4c4c4;"></span><span class="text-white">New Listings</span><span class="text-[#555]">Scottsdale</span></div>
+          <span class="font-bold" style="color:#c4c4c4;">+15</span>
+        </div>
+        <div class="soft-divider"></div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#999]"></span><span class="text-white">Price Reduced</span><span class="text-[#555]">Tempe</span></div>
+          <span class="font-bold text-[#999]">5</span>
+        </div>
+        <div class="soft-divider"></div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#aaa]"></span><span class="text-white">Off-Market</span><span class="text-[#555]">Mesa</span></div>
+          <span class="font-bold text-[#aaa]">3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-sm p-4">
+      <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-2">AI Prediction Accuracy</div>
+      <div class="flex items-end gap-3 mb-2">
+        <span class="text-[36px] font-bold text-white leading-none breathe">87%</span>
+        <span class="text-[11px] font-semibold mb-1" style="color:#bbbbbb;">↑ +4% vs last month</span>
+      </div>
+      <div class="conf-track"><div class="conf-fill" style="width:87%;"></div></div>
+    </div>
+
+  </div>
+</aside>
+
+
+<!-- Floating AI button -->
+<button id="help-btn" onclick="openChat()" class="fixed bottom-6 right-6 z-[60] px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 active:scale-97"
+        style="background:#1e1e1e;border:1px solid rgba(255,255,255,.1);">
+  <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#3d3d3d;">
+    <svg width="12" height="12" viewBox="0 0 32 32" fill="none">
+      <path d="M6 4v24M6 16L21 4M15 18l12 10" stroke="#e8e8e8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <span class="text-[12.5px] font-semibold text-white">Lofty AI</span>
+</button>
+
+
+<!-- ═══════════════════════════════════
+     GEMINI AI CHAT PANEL
+═══════════════════════════════════ -->
+<div id="chat-panel"
+     class="fixed bottom-0 right-6 z-[70] w-[380px] flex flex-col rounded-t-2xl overflow-hidden"
+     style="background:#141414;border:1px solid rgba(255,255,255,.1);border-bottom:none;transform:translateY(100%);max-height:540px;">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-4 flex-shrink-0" style="border-bottom:1px solid rgba(255,255,255,.07);">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#3d3d3d;">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+          <path d="M6 4v24M6 16L21 4M15 18l12 10" stroke="#e8e8e8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-[13.5px] font-bold text-white">Lofty AI</div>
+        <div class="flex items-center gap-1.5">
+          <span class="live-dot pulse" style="width:5px;height:5px;"></span>
+          <span class="text-[10.5px] text-[#555]">Powered by Gemini 2.5 Flash Lite</span>
+        </div>
+      </div>
+    </div>
+    <button onclick="closeChat()" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#555] hover:text-white transition-colors">
+      <span class="material-symbols-outlined text-[18px]">close</span>
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div id="chat-messages" class="flex-1 overflow-y-auto p-4" style="min-height:320px;max-height:370px;">
+    <div class="flex justify-start mb-3">
+      <div class="chat-bubble-ai max-w-[90%] px-4 py-3 text-[12.5px] leading-relaxed text-[#e0e0e0]">
+        Hi Sarah! I've analyzed your 26 leads and today's pipeline.<br><br>
+        <strong>Top priority:</strong> Call Brandon Allen now — rate lock expires April 22 and it's been 14 days since contact.<br><br>
+        Ask me anything about your leads, follow-up scripts, or market insights.
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="flex-shrink-0 px-4 py-3" style="border-top:1px solid rgba(255,255,255,.06);">
+    <div class="flex items-end gap-2">
+      <textarea id="chat-input"
+                placeholder="Ask about leads, follow-ups, market insights…"
+                class="chat-input-box flex-1 px-3 py-2.5 text-[12.5px]"
+                rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
+                oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,96)+'px'"></textarea>
+      <button id="chat-send" onclick="sendMessage()" class="chat-send-btn">
+        <span class="material-symbols-outlined text-[17px]">send</span>
+      </button>
+    </div>
+    <div class="text-[10px] text-[#333] mt-1.5 text-center">Enter to send · Shift+Enter for new line</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     LEAD DETAIL MODAL
+═══════════════════════════════════ -->
+<div id="lead-modal"
+     class="fixed inset-0 z-[80] flex items-center justify-center opacity-0 pointer-events-none"
+     style="background:rgba(0,0,0,.75);backdrop-filter:blur(6px);transition:opacity .2s;"
+     onclick="if(event.target===this)closeLeadModal()">
+  <div class="w-full max-w-sm mx-4 rounded-2xl overflow-hidden" style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);">
+    <div id="lead-modal-content"></div>
+  </div>
+</div>
+
+
+<script>
+/* ════════════════════════════════════
+   LEADS DATA — from CSV export
+════════════════════════════════════ */
+const LEADS = [
+  { id:1,  first:'Samuel',   last:'Scott',     type:'Buyer',     email:'samuel.scott@gmail.com',    phone:'(617) 438-9890', source:'YouTube',        minPrice:319000, maxPrice:401000,  city:'Mesa',      score:74, initials:'SS', daysAgo:0  },
+  { id:2,  first:'Daniel',   last:'Thomas',    type:'Seller',    email:'daniel.thomas@gmail.com',   phone:'(335) 457-2127', source:'Instagram',      score:52, initials:'DT', daysAgo:3  },
+  { id:3,  first:'Fatima',   last:'Jackson',   type:'Landlord',  email:'fatima.jackson@gmail.com',  phone:'(934) 451-4335', source:'Zillow',         score:61, initials:'FJ', daysAgo:1  },
+  { id:4,  first:'Yuki',     last:'Young',     type:'Buyer',     email:'yuki.young@gmail.com',      phone:'(660) 365-5050', source:'Email Campaign', minPrice:556000, maxPrice:687000,  city:'Surprise',  score:68, initials:'YY', daysAgo:2  },
+  { id:5,  first:'Carlos',   last:'Garcia',    type:'Other',     email:'carlos.garcia@gmail.com',   phone:'(562) 533-7735', source:'Zillow',         minPrice:196000, maxPrice:295000,  city:'Glendale',  score:44, initials:'CG', daysAgo:7  },
+  { id:6,  first:'David',    last:'Williams',  type:'Seller',    email:'david.williams@gmail.com',  phone:'(367) 573-7216', source:'Cold Call',      score:38, initials:'DW', daysAgo:5  },
+  { id:7,  first:'Sofia',    last:'Kim',       type:'Agent',     email:'sofia.kim@gmail.com',       phone:'(962) 674-9830', source:'Referral',       score:71, initials:'SK', daysAgo:1  },
+  { id:8,  first:'Kevin',    last:'Lee',       type:'Agent',     email:'kevin.lee@gmail.com',       phone:'(259) 693-9883', source:'Podcast',        score:83, initials:'KL', daysAgo:28, birthday:true },
+  { id:9,  first:'Aisha',    last:'Patel',     type:'Landlord',  email:'aisha.patel@gmail.com',     phone:'(980) 265-9837', source:'Zillow',         score:55, initials:'AP', daysAgo:4  },
+  { id:10, first:'Tyler',    last:'Harris',    type:'Landlord',  email:'tyler.harris@gmail.com',    phone:'(277) 807-3442', source:'Walk-In',        score:49, initials:'TH', daysAgo:6  },
+  { id:11, first:'Jennifer', last:'Lewis',     type:'Other',     email:'jennifer.lewis@gmail.com',  phone:'(594) 690-4114', source:'Facebook',       minPrice:421000, maxPrice:694000,  city:'Tucson',    score:61, initials:'JL', daysAgo:2  },
+  { id:12, first:'Chris',    last:'Walker',    type:'Investor',  email:'chris.walker@gmail.com',    phone:'(396) 530-7211', source:'Podcast',        score:66, initials:'CW', daysAgo:9  },
+  { id:13, first:'Brandon',  last:'Allen',     type:'Buyer',     email:'brandon.allen@gmail.com',   phone:'(351) 771-1090', source:'Google',         minPrice:606000, maxPrice:860000,  city:'Tucson',    score:88, initials:'BA', daysAgo:14, urgent:true },
+  { id:14, first:'Emily',    last:'Wilson',    type:'Renter',    email:'emily.wilson@gmail.com',    phone:'(272) 824-1964', source:'Facebook',       minPrice:702000, maxPrice:864000,  city:'Tucson',    score:61, initials:'EW', daysAgo:3  },
+  { id:15, first:'Robert',   last:'Davis',     type:'Homeowner', email:'robert.davis@gmail.com',    phone:'(762) 269-5342', source:'Walk-In',        score:33, initials:'RD', daysAgo:12 },
+  { id:16, first:'Andre',    last:'Nelson',    type:'Investor',  email:'andre.nelson@gmail.com',    phone:'(588) 435-4467', source:'Instagram',      score:58, initials:'AN', daysAgo:5  },
+  { id:17, first:'James',    last:'Johnson',   type:'Buyer',     email:'james.johnson@gmail.com',   phone:'(548) 384-3547', source:'Cold Call',      minPrice:263000, maxPrice:670000,  city:'Tucson',    score:56, initials:'JJ', daysAgo:8  },
+  { id:18, first:'Natasha',  last:'Robinson',  type:'Homeowner', email:'natasha.robinson@gmail.com',phone:'(442) 985-3662', source:'Facebook',       score:29, initials:'NR', daysAgo:20 },
+  { id:19, first:'Maria',    last:'Martinez',  type:'Investor',  email:'maria.martinez@gmail.com',  phone:'(791) 296-2139', source:'Walk-In',        score:63, initials:'MM', daysAgo:3  },
+  { id:20, first:'Mei',      last:'Hall',      type:'Buyer',     email:'mei.hall@gmail.com',        phone:'(874) 186-5649', source:'Facebook',       minPrice:584000, maxPrice:1040000, city:'Glendale',  score:72, initials:'MH', daysAgo:1  },
+  { id:21, first:'Omar',     last:'Clark',     type:'Renter',    email:'omar.clark@gmail.com',      phone:'(875) 297-7528', source:'Walk-In',        minPrice:333000, maxPrice:497000,  city:'Glendale',  score:47, initials:'OC', daysAgo:6  },
+  { id:22, first:'Linda',    last:'Taylor',    type:'Homeowner', email:'linda.taylor@gmail.com',    phone:'(295) 871-4872', source:'Google',         score:41, initials:'LT', daysAgo:15 },
+  { id:23, first:'Priya',    last:'Anderson',  type:'Seller',    email:'priya.anderson@gmail.com',  phone:'(834) 183-7868', source:'Instagram',      score:69, initials:'PA', daysAgo:2  },
+  { id:24, first:'(Unknown)',last:'',          type:'Other',     phone:'(634) 545-3322',            source:'Other',          score:12, initials:'??', daysAgo:1  },
+  { id:25, first:'Rachel',   last:'Adams',     type:'Agent',     email:'rachel.adams@gmail.com',    phone:'(424) 379-8140', source:'Email Campaign', score:77, initials:'RA', daysAgo:4  },
+  { id:26, first:'Michael',  last:'Brown',     type:'Renter',    email:'michael.brown@gmail.com',   phone:'(741) 357-1188', source:'Instagram',      minPrice:490000, maxPrice:845000,  city:'Tucson',    score:53, initials:'MB', daysAgo:7  },
+];
+
+/* ── Live time ── */
+function updateTime() {
+  const el = document.getElementById('live-time');
+  if (!el) return;
+  const now = new Date();
+  el.textContent = now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) +
+    ' · ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+}
+updateTime(); setInterval(updateTime, 60000);
+
+/* ── View toggle ── */
+function showView(v) {
+  ['ai','classic','crm'].forEach(id => {
+    const el = document.getElementById('view-' + id);
+    if (el) el.classList.toggle('hidden', id !== v);
+  });
+  // Top toggle buttons
+  ['ai','classic'].forEach(id => {
+    document.getElementById('btn-' + id)?.classList.toggle('active', id === v);
+  });
+  if (v === 'crm') renderLeads();
+}
+
+function setNavActive(el) {
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ── Why panels ── */
+function toggleWhy(id, btn) {
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.why-panel.open').forEach(p => {
+    if (p.id !== id) {
+      p.classList.remove('open');
+      const b = document.querySelector(`[onclick="toggleWhy('${p.id}',this)"]`);
+      if (b) b.style.color = '';
+    }
+  });
+  panel.classList.toggle('open', !isOpen);
+  btn.style.color = !isOpen ? '#d4d4d4' : '';
+}
+
+/* ── Right sidebar ── */
+function openSidebar() {
+  const s = document.getElementById('right-sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.remove('translate-x-full');
+  o.classList.remove('pointer-events-none');
+  setTimeout(() => o.classList.remove('opacity-0'), 10);
+}
+function closeSidebar() {
+  const s = document.getElementById('right-sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.add('translate-x-full');
+  o.classList.add('opacity-0');
+  setTimeout(() => o.classList.add('pointer-events-none'), 420);
+}
+
+/* ════════════════════════════════════
+   CRM VIEW
+════════════════════════════════════ */
+let crmFilter = 'All';
+let crmSearch = '';
+
+function setLeadFilter(type) {
+  crmFilter = type;
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.filter === type);
+  });
+  renderLeads();
+}
+
+function filterLeads() {
+  crmSearch = (document.getElementById('crm-search')?.value || '').toLowerCase();
+  renderLeads();
+}
+
+function renderLeads() {
+  const container = document.getElementById('crm-lead-list');
+  if (!container) return;
+  const filtered = LEADS
+    .filter(l => {
+      const matchType = crmFilter === 'All' || l.type === crmFilter;
+      const term = crmSearch;
+      const matchSearch = !term ||
+        (l.first + ' ' + l.last).toLowerCase().includes(term) ||
+        (l.email || '').toLowerCase().includes(term) ||
+        (l.city || '').toLowerCase().includes(term) ||
+        l.type.toLowerCase().includes(term);
+      return matchType && matchSearch;
+    })
+    .sort((a, b) => b.score - a.score);
+
+  container.innerHTML = filtered.length ? filtered.map(l => `
+    <div class="crm-row border-b border-[rgba(255,255,255,.04)]" onclick="openLeadDetail(${l.id})">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+           style="background:rgba(255,255,255,.09);">${l.initials}</div>
+      <div class="min-w-0">
+        <div class="text-[13px] font-semibold text-white truncate">${l.first} ${l.last}${l.birthday ? ' 🎂' : ''}${l.urgent ? ' ⚠' : ''}</div>
+        <div class="text-[11px] text-[#555] truncate">${l.email || l.phone}</div>
+      </div>
+      <div><span class="type-badge">${l.type}</span></div>
+      <div>
+        <div class="text-[13px] font-semibold text-white mb-1">${l.score}</div>
+        <div class="crm-score-bar"><div class="crm-score-fill" style="width:${l.score}%"></div></div>
+      </div>
+      <div class="text-[12px] text-[#666]">${l.source}</div>
+      <div class="text-[11.5px] text-[#555]">${l.minPrice ? '$' + Math.round(l.minPrice/1000) + 'K–$' + Math.round(l.maxPrice/1000) + 'K' : (l.city || '—')}</div>
+    </div>
+  `).join('') : `<div class="px-6 py-8 text-[13px] text-[#444] text-center">No leads match your filter.</div>`;
+}
+
+/* ── Lead Detail Modal ── */
+function openLeadDetail(id) {
+  const l = LEADS.find(x => x.id === id);
+  if (!l) return;
+  const modal = document.getElementById('lead-modal');
+  const content = document.getElementById('lead-modal-content');
+  const fmt = n => '$' + Math.round(n/1000) + 'K';
+  content.innerHTML = `
+    <div class="p-6">
+      <div class="flex items-start justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-[14px] font-bold text-white flex-shrink-0"
+               style="background:rgba(255,255,255,.09);">${l.initials}</div>
+          <div>
+            <div class="text-[17px] font-bold text-white leading-tight">${l.first} ${l.last}</div>
+            <span class="type-badge mt-1">${l.type}</span>
+          </div>
+        </div>
+        <div class="text-right ml-4">
+          <div class="text-[10px] text-[#555] mb-0.5">AI Score</div>
+          <div class="text-[28px] font-bold text-white leading-none">${l.score}</div>
+        </div>
+      </div>
+      <div class="crm-score-bar mb-4"><div class="crm-score-fill" style="width:${l.score}%"></div></div>
+      <div class="space-y-2.5 mb-5">
+        ${l.email ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">mail</span><span class="text-[12.5px] text-[#aaa]">${l.email}</span></div>` : ''}
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">phone</span><span class="text-[12.5px] text-[#aaa]">${l.phone}</span></div>
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">hub</span><span class="text-[12.5px] text-[#aaa]">Source: ${l.source}</span></div>
+        ${l.city ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">location_on</span><span class="text-[12.5px] text-[#aaa]">${l.city}, AZ</span></div>` : ''}
+        ${l.minPrice ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">attach_money</span><span class="text-[12.5px] text-[#aaa]">Budget: ${fmt(l.minPrice)} – ${fmt(l.maxPrice)}</span></div>` : ''}
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">schedule</span><span class="text-[12.5px] text-[#aaa]">Last contact: ${l.daysAgo === 0 ? 'Today' : l.daysAgo + ' days ago'}</span></div>
+        ${l.birthday ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">cake</span><span class="text-[12.5px] text-[#aaa]">Birthday today — great time to reach out</span></div>` : ''}
+      </div>
+      <div class="flex gap-2 mb-3">
+        <button class="btn-primary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">phone</span> Call
+        </button>
+        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">sms</span> Text
+        </button>
+        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">mail</span> Email
+        </button>
+      </div>
+      <button onclick="closeLeadModal()" class="w-full text-center text-[11.5px] text-[#444] hover:text-[#888] transition-colors py-1">Dismiss</button>
+    </div>
+  `;
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+}
+function closeLeadModal() {
+  document.getElementById('lead-modal').classList.add('opacity-0', 'pointer-events-none');
+}
+
+/* ════════════════════════════════════
+   GEMINI AI CHAT
+════════════════════════════════════ */
+const GEMINI_KEY = 'AIzaSyC9Td15CWPYRT4lQwJXWb8Q5yBbKilRPzw';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_KEY}`;
+
+const SYSTEM_PROMPT = `You are Lofty AI, an intelligent real estate CRM assistant built into the Lofty platform, helping Sarah Martinez — a real estate agent at Keller Williams AZ. Today is April 19, 2026.
+
+Sarah has 26 leads in her CRM. Today's AI-prioritized top 3:
+1. Brandon Allen (Score 88, URGENT) — Buyer, $606K–$860K, Tucson AZ. Viewed 4891 E Sunrise Dr twice + 2 other listings in 48hrs. Rate lock expires April 22 (3 days). 14 days since last contact. Source: Google.
+2. Samuel Scott (Score 74) — Buyer, $319K–$401K, Mesa AZ. Returned to site after 12-day absence. 19 min on 3488 Cedar St — floor plan viewed 3× and school district page. 2 price-reduced Mesa listings match his search. Source: YouTube.
+3. Kevin Lee (Score 83) — Past client/Agent. Birthday TODAY. Last contact 28 days ago (approaching cold zone). Interested in Surprise investment properties (6–7% cap rate). 2 referrals sent. Source: Podcast.
+
+Other leads worth mentioning: Mei Hall (72, Facebook, Buyer $584K–$1.04M Glendale), Rachel Adams (77, Email Campaign, Agent), Sofia Kim (71, Referral, Agent), Priya Anderson (69, Instagram, Seller), Yuki Young (68, Email Campaign, Buyer $556K–$687K Surprise), Chris Walker (66, Podcast, Investor), Maria Martinez (63, Walk-In, Investor), Fatima Jackson (61, Zillow, Landlord), Jennifer Lewis (61, Facebook, Buyer $421K–$694K Tucson), Emily Wilson (61, Facebook, Renter).
+
+Active transactions: 2847 S Rural Rd (deadline in 48 hours — urgent), 1204 W Baseline (on track).
+AI worked overnight: 12 follow-up emails sent, 35 lead scores updated, 8 buyer-listing matches found.
+Today's showings: 2pm and 4:30pm.
+
+You can help Sarah with: lead prioritization, writing follow-up texts/emails, market insights for AZ, scheduling advice, explaining AI scores, next best actions. Be concise, warm, and actionable. Use bullet points for lists. Keep responses under 200 words unless asked for more detail.`;
+
+const chatHistory = [];
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addBubble('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  const btn = document.getElementById('chat-send');
+  btn.disabled = true;
+  const tid = addTyping();
+  chatHistory.push({ role: 'user', parts: [{ text }] });
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: chatHistory,
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
+      })
+    });
+    const data = await res.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+      || (data.error ? `Error: ${data.error.message}` : 'Something went wrong — please try again.');
+    removeTyping(tid);
+    chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+    addBubble('ai', reply);
+  } catch (e) {
+    removeTyping(tid);
+    addBubble('ai', 'Network error — check your connection and try again.');
+  }
+  btn.disabled = false;
+}
+
+function addBubble(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-3`;
+  const html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+  div.innerHTML = `<div class="max-w-[88%] px-4 py-3 text-[12.5px] leading-relaxed ${role === 'user' ? 'chat-bubble-user text-white' : 'chat-bubble-ai text-[#e0e0e0]'}">${html}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+let _tc = 0;
+function addTyping() {
+  const id = 'ty-' + (++_tc);
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'flex justify-start mb-3';
+  div.innerHTML = `<div class="chat-bubble-ai px-4 py-3 flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .0s infinite"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .2s infinite"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .4s infinite"></span>
+  </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+function removeTyping(id) { document.getElementById(id)?.remove(); }
+
+function openChat() {
+  document.getElementById('chat-panel').classList.add('open');
+  document.getElementById('help-btn').style.opacity = '0';
+  document.getElementById('help-btn').style.pointerEvents = 'none';
+  setTimeout(() => document.getElementById('chat-input')?.focus(), 450);
+}
+function closeChat() {
+  document.getElementById('chat-panel').classList.remove('open');
+  const btn = document.getElementById('help-btn');
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = '';
+}
+
+function createChartPalette() {
+  return {
+    untouched: '#ef4444',
+    contacted: '#f59e0b',
+    hot: '#3b82f6',
+    closed: '#22c55e',
+    listing: '#3b82f6',
+    listingAlt: '#60a5fa',
+    listingAlt2: '#93c5fd',
+    trendA: '#7c3aed',
+    trendB: '#38bdf8',
+    trendC: '#34d399',
+    mutedText: '#888888',
+    gridLine: 'rgba(255,255,255,0.08)'
+  };
+}
+
+function initCharts() {
+  const palette = createChartPalette();
+
+  Chart.register({
+    id: 'centerText',
+    beforeDraw(chart) {
+      const centerText = chart.config.options.plugins.centerText;
+      if (!centerText) return;
+      const { ctx, chartArea: { width, height } } = chart;
+      ctx.save();
+      ctx.fillStyle = centerText.color || '#ffffff';
+      ctx.font = centerText.font || '700 16px Sora, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(centerText.text, width / 2, height / 2);
+      ctx.restore();
+    }
+  });
+
+  new Chart(document.getElementById('pipelineChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Untouched', 'Contacted', 'Hot', 'Closed'],
+      datasets: [{
+        data: [9, 8, 5, 3],
+        backgroundColor: [palette.untouched, palette.contacted, palette.hot, palette.closed],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: palette.mutedText,
+            font: { size: 11 },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 12
+          }
+        },
+        tooltip: {
+          backgroundColor: '#111111',
+          titleColor: '#ffffff',
+          bodyColor: '#e8e8e8',
+          borderColor: '#2a2a2a',
+          borderWidth: 1
+        },
+        centerText: {
+          text: '25 Total',
+          color: '#e8e8e8',
+          font: '700 16px Sora, sans-serif'
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('engagementChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [
+        {
+          label: '4891 E Sunrise Dr',
+          data: [42, 57, 49, 63, 55, 68, 61],
+          backgroundColor: palette.listing,
+          borderRadius: 6,
+          barThickness: 18
+        },
+        {
+          label: '3488 Cedar St',
+          data: [33, 45, 37, 52, 44, 50, 47],
+          backgroundColor: palette.listingAlt,
+          borderRadius: 6,
+          barThickness: 18
+        },
+        {
+          label: '182 Saint Peter St',
+          data: [28, 35, 30, 39, 34, 42, 36],
+          backgroundColor: palette.listingAlt2,
+          borderRadius: 6,
+          barThickness: 18
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: palette.mutedText, font: { size: 11 }, boxWidth: 10, padding: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#111111',
+          titleColor: '#ffffff',
+          bodyColor: '#e8e8e8',
+          borderColor: '#2a2a2a',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: palette.mutedText }
+        },
+        y: {
+          grid: { color: palette.gridLine, drawBorder: false },
+          ticks: { color: palette.mutedText, stepSize: 20 }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6','Day 7','Day 8','Day 9','Day 10','Day 11','Day 12','Day 13','Day 14'],
+      datasets: [
+        {
+          label: 'Brandon Allen',
+          data: [68, 70, 73, 75, 76, 80, 82, 84, 86, 87, 88, 87, 88, 88],
+          borderColor: palette.trendA,
+          pointBackgroundColor: palette.trendA,
+          pointRadius: 4,
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2
+        },
+        {
+          label: 'Samuel Scott',
+          data: [56, 57, 58, 60, 62, 64, 66, 68, 69, 71, 72, 73, 74, 74],
+          borderColor: palette.trendB,
+          pointBackgroundColor: palette.trendB,
+          pointRadius: 4,
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2
+        },
+        {
+          label: 'Kevin Lee',
+          data: [48, 50, 51, 53, 55, 56, 57, 58, 59, 60, 61, 61, 61, 61],
+          borderColor: palette.trendC,
+          pointBackgroundColor: palette.trendC,
+          pointRadius: 4,
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: palette.mutedText, font: { size: 11 }, boxWidth: 10, padding: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#111111',
+          titleColor: '#ffffff',
+          bodyColor: '#e8e8e8',
+          borderColor: '#2a2a2a',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: palette.mutedText }
+        },
+        y: {
+          grid: { color: palette.gridLine, drawBorder: false },
+          ticks: { color: palette.mutedText, stepSize: 10 }
+        }
+      }
+    }
+  });
+}
+
+initCharts();
+</script>
+</body>
+</html>
