@@ -591,7 +591,7 @@ body {
             <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-1">Revenue Forecast</div>
             <div class="flex items-baseline gap-2">
               <span class="text-[28px] font-bold text-white" id="rev-total">$0</span>
-              <span class="text-[12px] font-semibold" style="color:#71d7cd;">↑ $33K forecast next 4 months</span>
+              <span class="text-[12px] font-semibold" style="color:#71d7cd;" id="rev-delta">↑ $0 forecast next 4 months</span>
             </div>
           </div>
           <div class="flex gap-1.5">
@@ -611,62 +611,216 @@ body {
           <div class="ml-auto flex gap-6">
             <div class="text-right">
               <div class="text-[10.5px] text-[#555]">Projected close</div>
-              <div class="text-[13px] font-semibold text-white">$20,865</div>
+              <div class="text-[13px] font-semibold text-white" id="rev-projected">$0</div>
             </div>
             <div class="text-right">
               <div class="text-[10.5px] text-[#555]">Pipeline value</div>
-              <div class="text-[13px] font-semibold text-white">$251K</div>
+              <div class="text-[13px] font-semibold text-white" id="rev-pipeline">$0</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ── Animated Ring Metrics ── -->
+      <!-- ── RE-native KPI rings ── -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="ring-metrics">
         <div class="card p-5 flex flex-col items-center gap-3">
-          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="88" data-key="response">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="72" data-key="gci">
             <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
-            <circle id="ring-fill-response" cx="40" cy="40" r="32" fill="none" stroke="#22c55e" stroke-width="6" stroke-linecap="round"
+            <circle id="ring-fill-gci" cx="40" cy="40" r="32" fill="none" stroke="#22c55e" stroke-width="6" stroke-linecap="round"
               stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
           </svg>
           <div class="text-center">
-            <div id="ring-label-response" class="text-[18px] font-bold text-white ring-label">0%</div>
-            <div class="text-[10.5px] text-[#555]">Response Rate</div>
+            <div id="ring-label-gci" class="text-[18px] font-bold text-white ring-label">$0</div>
+            <div class="text-[10.5px] text-[#555]">GCI · YTD</div>
+            <div class="text-[10px] mt-0.5" style="color:#22c55e;">72% to $100K goal</div>
           </div>
         </div>
         <div class="card p-5 flex flex-col items-center gap-3">
-          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="63" data-key="pipeline">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="65" data-key="dom">
             <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
-            <circle id="ring-fill-pipeline" cx="40" cy="40" r="32" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"
+            <circle id="ring-fill-dom" cx="40" cy="40" r="32" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"
               stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
           </svg>
           <div class="text-center">
-            <div id="ring-label-pipeline" class="text-[18px] font-bold text-white ring-label">0%</div>
-            <div class="text-[10.5px] text-[#555]">Pipeline Health</div>
+            <div id="ring-label-dom" class="text-[18px] font-bold text-white ring-label">0d</div>
+            <div class="text-[10.5px] text-[#555]">Avg Days on Market</div>
+            <div class="text-[10px] mt-0.5" style="color:#3b82f6;">↓ 4d vs market</div>
           </div>
         </div>
         <div class="card p-5 flex flex-col items-center gap-3">
-          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="91" data-key="accuracy">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="98" data-key="listsale">
             <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
-            <circle id="ring-fill-accuracy" cx="40" cy="40" r="32" fill="none" stroke="#a855f7" stroke-width="6" stroke-linecap="round"
+            <circle id="ring-fill-listsale" cx="40" cy="40" r="32" fill="none" stroke="#a855f7" stroke-width="6" stroke-linecap="round"
               stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
           </svg>
           <div class="text-center">
-            <div id="ring-label-accuracy" class="text-[18px] font-bold text-white ring-label">0%</div>
-            <div class="text-[10.5px] text-[#555]">AI Accuracy</div>
+            <div id="ring-label-listsale" class="text-[18px] font-bold text-white ring-label">0%</div>
+            <div class="text-[10.5px] text-[#555]">List-to-Sale Ratio</div>
+            <div class="text-[10px] mt-0.5" style="color:#a855f7;">↑ +1.2% vs Q1</div>
           </div>
         </div>
         <div class="card p-5 flex flex-col items-center gap-3">
-          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="74" data-key="close">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="42" data-key="showing">
             <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
-            <circle id="ring-fill-close" cx="40" cy="40" r="32" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"
+            <circle id="ring-fill-showing" cx="40" cy="40" r="32" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"
               stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
           </svg>
           <div class="text-center">
-            <div id="ring-label-close" class="text-[18px] font-bold text-white ring-label">0%</div>
-            <div class="text-[10.5px] text-[#555]">Close Rate</div>
+            <div id="ring-label-showing" class="text-[18px] font-bold text-white ring-label">0%</div>
+            <div class="text-[10.5px] text-[#555]">Showing → Offer</div>
+            <div class="text-[10px] mt-0.5" style="color:#f59e0b;">14 showings this mo.</div>
           </div>
         </div>
+      </div>
+
+      <!-- ── Today's Schedule + Commission Pipeline ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-3 mb-4">
+
+        <!-- Today's Schedule -->
+        <div class="card overflow-hidden">
+          <div class="px-5 pt-4 pb-3 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,.05);">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[15px]" style="color:#c4c4c4;">event</span>
+              <h3 class="text-[10.5px] font-bold uppercase tracking-widest text-[#aaa]">Today's Schedule</h3>
+            </div>
+            <span class="text-[11px] text-[#555]">Thu, Apr 18 · 3 showings · 1 open house</span>
+          </div>
+          <div class="relative">
+            <!-- time grid rail -->
+            <div class="px-5 pt-4">
+              <div class="flex items-center justify-between text-[9.5px] font-semibold tracking-wider" style="color:#3a3a3a;">
+                <span>9A</span><span>10A</span><span>11A</span><span>12P</span><span>1P</span><span>2P</span><span>3P</span><span>4P</span><span>5P</span><span>6P</span>
+              </div>
+              <div class="mt-1.5 h-px" style="background:rgba(255,255,255,.05);"></div>
+              <!-- now indicator (at ~10:40am = 18.8% of 9A-6P span) -->
+              <div class="relative" style="height:0;">
+                <div style="position:absolute;left:18.8%;top:-4px;bottom:0;width:1px;background:linear-gradient(to bottom,#22c55e,transparent);">
+                  <div style="position:absolute;left:-3px;top:-3px;width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18);"></div>
+                  <div style="position:absolute;left:8px;top:-5px;font-size:9px;font-weight:700;letter-spacing:.1em;color:#22c55e;white-space:nowrap;">NOW</div>
+                </div>
+              </div>
+            </div>
+            <!-- event rows -->
+            <div class="px-5 py-4 space-y-2.5">
+              <div class="flex items-center gap-3">
+                <div class="text-[11px] font-semibold text-white w-16 flex-shrink-0">11:00a</div>
+                <div class="flex-1 rounded-lg px-3 py-2 flex items-center gap-3" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);">
+                  <span class="material-symbols-outlined text-[15px]" style="color:#22c55e;">home</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-semibold text-white leading-tight">Showing · 4891 E Sunrise Dr</div>
+                    <div class="text-[10.5px] text-[#666] mt-0.5">Brandon Allen · buyer · 30 min</div>
+                  </div>
+                  <span class="chip" style="background:rgba(34,197,94,.15);color:#22c55e;">NEXT</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="text-[11px] font-semibold text-[#888] w-16 flex-shrink-0">1:30p</div>
+                <div class="flex-1 rounded-lg px-3 py-2 flex items-center gap-3" style="background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);">
+                  <span class="material-symbols-outlined text-[15px]" style="color:#f59e0b;">description</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-semibold text-white leading-tight">Escrow review · 2847 S Rural Rd</div>
+                    <div class="text-[10.5px] text-[#666] mt-0.5">Pending · docs due 48h · title company call</div>
+                  </div>
+                  <span class="chip" style="background:rgba(245,158,11,.12);color:#f59e0b;">PENDING</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="text-[11px] font-semibold text-[#888] w-16 flex-shrink-0">3:00p</div>
+                <div class="flex-1 rounded-lg px-3 py-2 flex items-center gap-3" style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);">
+                  <span class="material-symbols-outlined text-[15px]" style="color:#3b82f6;">home</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-semibold text-white leading-tight">Showing · 3488 Cedar St</div>
+                    <div class="text-[10.5px] text-[#666] mt-0.5">Samuel Scott · 2nd visit · floor plan Q's</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="text-[11px] font-semibold text-[#888] w-16 flex-shrink-0">4:30p</div>
+                <div class="flex-1 rounded-lg px-3 py-2 flex items-center gap-3" style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.18);">
+                  <span class="material-symbols-outlined text-[15px]" style="color:#a855f7;">videocam</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-semibold text-white leading-tight">Buyer consult · Emily Wilson</div>
+                    <div class="text-[10.5px] text-[#666] mt-0.5">Pre-approval review · Gilbert area · video call</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="px-5 pb-4 pt-1 flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,.04);padding-top:12px;">
+              <div class="text-[11px] text-[#888]"><span class="material-symbols-outlined text-[13px] align-middle" style="color:#71d7cd;">house</span> <span class="font-semibold" style="color:#71d7cd;">Sat Open House</span> · <span class="text-[#aaa]">8921 E Pinnacle Peak · 12–3p · 6 RSVPs</span></div>
+              <button class="btn-secondary text-[11px]" style="padding:5px 12px;">Full calendar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commission Pipeline -->
+        <div class="card overflow-hidden">
+          <div class="px-5 pt-4 pb-3 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,.05);">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[15px]" style="color:#c4c4c4;">paid</span>
+              <h3 class="text-[10.5px] font-bold uppercase tracking-widest text-[#aaa]">Commission Pipeline</h3>
+            </div>
+            <span class="text-[11px] font-semibold text-white">$42,180 <span class="text-[#555] font-normal">projected next 60d</span></span>
+          </div>
+          <!-- stacked bar -->
+          <div class="px-5 pt-4">
+            <div class="flex h-2.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,.04);">
+              <div style="width:38%;background:linear-gradient(90deg,#22c55e,#34d399);" title="Under Contract"></div>
+              <div style="width:28%;background:linear-gradient(90deg,#71d7cd,#3b82f6);" title="Listed"></div>
+              <div style="width:22%;background:linear-gradient(90deg,#3b82f6,#a855f7);" title="Pre-approval"></div>
+              <div style="width:12%;background:linear-gradient(90deg,#a855f7,#f59e0b);" title="Prospect"></div>
+            </div>
+            <div class="flex text-[10px] mt-2" style="color:#888;">
+              <div style="width:38%;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;margin-right:4px;"></span>Under Contract</div>
+              <div style="width:28%;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#71d7cd;margin-right:4px;"></span>Listed</div>
+              <div style="width:22%;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>Pre-approved</div>
+              <div style="width:12%;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#a855f7;margin-right:4px;"></span>Prospect</div>
+            </div>
+          </div>
+          <!-- deal rows -->
+          <div class="px-5 py-4 space-y-2">
+            <div class="flex items-center gap-3 py-1.5" style="border-bottom:1px solid rgba(255,255,255,.04);">
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-white leading-tight">2847 S Rural Rd · Tempe</div>
+                <div class="text-[10.5px] text-[#666] mt-0.5">Closes Apr 20 · 2 days · escrow ⚠</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[12px] font-bold text-white">$15,870</div>
+                <div class="text-[10px]" style="color:#22c55e;">3% · $529K</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 py-1.5" style="border-bottom:1px solid rgba(255,255,255,.04);">
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-white leading-tight">1204 W Baseline · Mesa</div>
+                <div class="text-[10.5px] text-[#666] mt-0.5">Closes May 3 · 15 days · on track</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[12px] font-bold text-white">$13,470</div>
+                <div class="text-[10px]" style="color:#22c55e;">3% · $449K</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 py-1.5" style="border-bottom:1px solid rgba(255,255,255,.04);">
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-white leading-tight">4891 E Sunrise Dr · Tucson</div>
+                <div class="text-[10.5px] text-[#666] mt-0.5">Listed · 14 days · 3 offers pending</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[12px] font-bold text-white">$24,570</div>
+                <div class="text-[10px]" style="color:#71d7cd;">3% · $819K est</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 py-1.5">
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-white leading-tight">3488 Cedar St · Mesa</div>
+                <div class="text-[10.5px] text-[#666] mt-0.5">Listed · 9 days · Samuel Scott interest</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[12px] font-bold text-white">$11,220</div>
+                <div class="text-[10px]" style="color:#71d7cd;">3% · $374K est</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="chart-row">
@@ -2363,12 +2517,10 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
     return `$${Math.round(v)}`;
   }
 
-  const revEl = document.getElementById('rev-total');
-  function animateRevTotal(target) {
-    gsap.to({val:0}, { val:target, duration:1.6, ease:'power2.out',
-      onUpdate() { if(revEl) revEl.textContent = fmtDollar(Math.round(this.targets()[0].val)); }
-    });
-  }
+  const revEl    = document.getElementById('rev-total');
+  const revDelta = document.getElementById('rev-delta');
+  const revProj  = document.getElementById('rev-projected');
+  const revPipe  = document.getElementById('rev-pipeline');
 
   /* Build merged label+data arrays for a given history slice, always appending forecast */
   function buildView(histN) {
@@ -2389,12 +2541,23 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
     return gr;
   };
 
+  /* Gradient cache — rebuilt only when chartArea changes (resize) */
+  let gradCache = { actKey: null, fstKey: null, act: null, fst: null };
+  function getGrad(ctx, r, g, b, slot) {
+    const area = ctx.chart.chartArea;
+    if (!area) return `rgba(${r},${g},${b},.15)`;
+    const key = `${area.top}|${area.bottom}`;
+    if (gradCache[slot + 'Key'] !== key) {
+      gradCache[slot + 'Key'] = key;
+      gradCache[slot] = makeGrad(ctx.chart.ctx, area, r, g, b);
+    }
+    return gradCache[slot];
+  }
+
   let currentHistN = 6;
   let fullView = buildView(currentHistN);
   const totalPoints = fullView.labels.length; // history + 4 forecast
 
-  /* Track the leading-edge index so pointRadius can highlight it without a self-reference */
-  let leadIdx = { act: -1, fst: -1 };
 
   /* Start with all data hidden — drawn one point at a time by the loop */
   const revChart = new Chart(document.getElementById('revenueChart'), {
@@ -2407,11 +2570,12 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
           data: Array(totalPoints).fill(null),
           borderColor: '#22c55e',
           borderWidth: 2.5,
-          pointRadius: ctx => ctx.dataIndex === leadIdx.act ? 5 : 3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
           pointBackgroundColor: '#22c55e',
           tension: 0.4,
           fill: true,
-          backgroundColor: ctx => makeGrad(ctx.chart.ctx, ctx.chart.chartArea, 34,197,94),
+          backgroundColor: ctx => getGrad(ctx, 34,197,94, 'act'),
           spanGaps: false,
         },
         {
@@ -2420,18 +2584,21 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
           borderColor: '#71d7cd',
           borderWidth: 2,
           borderDash: [5, 4],
-          pointRadius: ctx => ctx.dataIndex === leadIdx.fst ? 5 : 3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
           pointBackgroundColor: '#71d7cd',
           tension: 0.4,
           fill: true,
-          backgroundColor: ctx => makeGrad(ctx.chart.ctx, ctx.chart.chartArea, 113,215,205),
+          backgroundColor: ctx => getGrad(ctx, 113,215,205, 'fst'),
           spanGaps: false,
         }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      animation: { duration: 350, easing: 'easeInOutCubic' },
+      animation: false,
+      animations: { colors: false, x: false, y: false },
+      transitions: { active: { animation: { duration: 0 } } },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -2458,79 +2625,166 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
     }
   });
 
-  /* ── Draw-in loop: reveal one point every 380ms, loop when done ── */
-  let drawIdx = 0;
-  let drawTimer = null;
+  /* ── Smooth rAF-driven draw: continuous progress value gives fractional
+     interpolation so the line grows smoothly instead of snapping point-to-point ── */
+  let progress = 0;          // 0 .. totalPoints (fractional)
+  let rafId = null;
+  let holdUntil = 0;
 
-  function revealNext() {
+  function sampleAt(arr, p) {
+    // arr has nulls for "other dataset" slots. Return a piecewise-linear value
+    // between the last defined point <= p and the next defined point > p.
+    const n = arr.length;
+    if (p <= 0) return arr[0];
+    if (p >= n - 1) return arr[n - 1];
+    const lo = Math.floor(p), hi = lo + 1, f = p - lo;
+    const a = arr[lo], b = arr[hi];
+    if (a == null && b == null) return null;
+    if (a == null) return b;
+    if (b == null) return a;
+    return a + (b - a) * f;
+  }
+
+  /* Pre-allocated output arrays (reused per frame, no GC churn) */
+  const aOut = Array(totalPoints).fill(null);
+  const fOut = Array(totalPoints).fill(null);
+
+  function renderFrame() {
     const { actData, fData } = fullView;
-    const total = actData.length;
+    const n = actData.length;
+    const p = Math.min(progress, n - 1);
+    const whole = Math.floor(p);
+    const frac = p - whole;
 
-    if (drawIdx < total) {
-      const av = actData[drawIdx];
-      const fv = fData[drawIdx];
+    // Reset
+    for (let i = 0; i < n; i++) { aOut[i] = null; fOut[i] = null; }
 
-      revChart.data.datasets[0].data[drawIdx] = av;
-      revChart.data.datasets[1].data[drawIdx] = fv;
-
-      /* Update leading-edge highlight */
-      if (av != null) leadIdx.act = drawIdx;
-      if (fv != null) leadIdx.fst = drawIdx;
-
-      revChart.update('active');
-
-      /* Tick counter to the most recent visible value */
-      const display = fv ?? av ?? 0;
-      if (display > 0) animateRevTotal(display);
-
-      drawIdx++;
-      /* Slightly slower on forecast section for drama */
-      const isForecast = drawIdx > actData.filter(v => v != null).length;
-      drawTimer = setTimeout(revealNext, isForecast ? 500 : 380);
-    } else {
-      /* Hold at end, then loop */
-      drawTimer = setTimeout(resetDraw, 2400);
+    // Fill complete points up to `whole`
+    for (let i = 0; i <= whole; i++) {
+      if (actData[i] != null) aOut[i] = actData[i];
+      if (fData[i]   != null) fOut[i] = fData[i];
     }
+    // Interpolate the leading fractional point toward the next value
+    if (frac > 0 && whole + 1 < n) {
+      if (actData[whole] != null && actData[whole + 1] != null) {
+        aOut[whole + 1] = actData[whole] + (actData[whole + 1] - actData[whole]) * frac;
+      }
+      if (fData[whole] != null && fData[whole + 1] != null) {
+        fOut[whole + 1] = fData[whole] + (fData[whole + 1] - fData[whole]) * frac;
+      }
+    }
+
+    revChart.data.datasets[0].data = aOut;
+    revChart.data.datasets[1].data = fOut;
+    revChart.update('none');
+
+    // Live stat values derived from progress
+    const fv = sampleAt(fData, p);
+    const av = sampleAt(actData, p);
+    const display = (fv != null ? fv : (av != null ? av : 0));
+    if (revEl) revEl.textContent = fmtDollar(Math.round(display));
+
+    // Running totals update with the draw
+    let cumActual = 0, forecastSum = 0, firstFstSeen = false;
+    for (let i = 0; i < n; i++) {
+      if (aOut[i] != null) cumActual += aOut[i];
+      if (fOut[i] != null) {
+        if (!firstFstSeen) { firstFstSeen = true; } // skip bridge point
+        else forecastSum += fOut[i];
+      }
+    }
+    const pipelineDrawn = cumActual + Math.max(0, forecastSum);
+
+    if (revDelta) revDelta.textContent = `↑ ${fmtDollar(Math.round(Math.max(0, forecastSum)))} forecast next 4 months`;
+    if (revProj)  revProj.textContent  = '$' + Math.round(cumActual).toLocaleString();
+    if (revPipe)  revPipe.textContent  = fmtDollar(Math.round(pipelineDrawn));
+  }
+
+  /* Decouple time-progression from rendering: progress advances every rAF
+     tick (smooth time), but Chart.js re-renders at ≤45fps for stable motion
+     even on 120Hz displays where per-frame update() can't keep up. */
+  const MIN_FRAME_MS = 1000 / 45;
+  let lastTs = 0;
+  let lastRenderTs = 0;
+
+  function loop(ts) {
+    if (!lastTs) lastTs = ts;
+    const dt = ts - lastTs;
+    lastTs = ts;
+
+    const n = fullView.actData.length;
+    const firstFcstIdx = fullView.actData.findIndex(v => v == null);
+
+    if (ts < holdUntil) {
+      // Paused at end — no progress change
+    } else if (progress < n - 1) {
+      const inForecast = progress >= (firstFcstIdx >= 0 ? firstFcstIdx - 1 : n);
+      const speed = inForecast ? 1.1 : 1.7; // points per second
+      progress = Math.min(n - 1, progress + (dt / 1000) * speed);
+      if (progress >= n - 1) holdUntil = ts + 2200;
+    } else {
+      progress = 0;
+      holdUntil = 0;
+    }
+
+    if (ts - lastRenderTs >= MIN_FRAME_MS) {
+      lastRenderTs = ts;
+      renderFrame();
+    }
+    rafId = requestAnimationFrame(loop);
   }
 
   function resetDraw() {
-    drawIdx = 0;
-    leadIdx = { act: -1, fst: -1 };
+    if (rafId) cancelAnimationFrame(rafId);
+    progress = 0;
+    lastTs = 0;
+    lastRenderTs = 0;
+    holdUntil = 0;
     const len = fullView.labels.length;
     revChart.data.datasets[0].data = Array(len).fill(null);
     revChart.data.datasets[1].data = Array(len).fill(null);
     revChart.update('none');
-    animateRevTotal(0);
-    drawTimer = setTimeout(revealNext, 500);
+    if (revEl) revEl.textContent = '$0';
+    if (revDelta) revDelta.textContent = '↑ $0 forecast next 4 months';
+    if (revProj)  revProj.textContent  = '$0';
+    if (revPipe)  revPipe.textContent  = '$0';
+    rafId = requestAnimationFrame(loop);
   }
 
-  revealNext();
+  resetDraw();
 
-  /* ── Ring update helper ── */
+  /* ── Ring update helper (RE-specific formatters) ── */
+  const ringFmt = {
+    gci:      v => '$' + Math.round(v * 1.04) + 'K',   // 72 → $72K-ish, caps at $100K goal
+    dom:      v => Math.round(55 - v*0.35) + 'd',      // 65 → ~32d (inverse: higher fill = fewer days)
+    listsale: v => Math.round(v) + '%',                // 98% list-to-sale
+    showing:  v => Math.round(v) + '%'                 // 42% showing-to-offer
+  };
   function animateRing(key, fromPct, toPct) {
     const fill  = document.getElementById('ring-fill-' + key);
     const label = document.getElementById('ring-label-' + key);
     if (!fill || !label) return;
     const circ = 201;
+    const fmt = ringFmt[key] || (v => Math.round(v) + '%');
     gsap.to({v:fromPct}, {
       v: toPct, duration: 1.4, ease: 'power2.inOut',
       onUpdate() {
         const v = this.targets()[0].v;
         fill.setAttribute('stroke-dashoffset', circ - (circ * v / 100));
-        label.textContent = Math.round(v) + '%';
+        label.textContent = fmt(v);
       }
     });
   }
 
-  /* Derived from CSV: response=72%, pipeline health=43%, AI accuracy=78%, close rate=38% */
-  const ringVals = { response:72, pipeline:43, accuracy:78, close:38 };
+  /* RE KPIs: gci=72% toward goal, dom=65 (→32d), listsale=98%, showing=42% */
+  const ringVals = { gci:72, dom:65, listsale:98, showing:42 };
   Object.entries(ringVals).forEach(([k,v]) => animateRing(k, 0, v));
 
   /* Gentle live nudge — keeps rings animated without faking revenue data */
   setInterval(() => {
-    ['response','pipeline','accuracy','close'].forEach(key => {
+    ['gci','dom','listsale','showing'].forEach(key => {
       const prev = ringVals[key];
-      const next = Math.min(99, Math.max(30, Math.round(prev + (Math.random()-.48)*5)));
+      const next = Math.min(99, Math.max(30, Math.round(prev + (Math.random()-.48)*4)));
       animateRing(key, prev, next);
       ringVals[key] = next;
     });
@@ -2541,7 +2795,6 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.rev-range-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      clearTimeout(drawTimer);
       currentHistN = +btn.dataset.range;
       fullView = buildView(currentHistN);
       revChart.data.labels = fullView.labels;
@@ -2555,9 +2808,16 @@ gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
 ══════════════════════════════════ */
 document.querySelectorAll('.ring-svg').forEach(svg => {
   const pct  = +svg.dataset.pct;
+  const key  = svg.dataset.key;
   const ring = svg.querySelector('.ring-fill');
   const label = svg.closest('.card').querySelector('.ring-label');
   const circ = 201;
+  const fmt = ({
+    gci:      v => '$' + Math.round(v * 1.04) + 'K',
+    dom:      v => Math.round(55 - v*0.35) + 'd',
+    listsale: v => Math.round(v) + '%',
+    showing:  v => Math.round(v) + '%'
+  })[key] || (v => Math.round(v) + '%');
 
   ScrollTrigger.create({
     trigger: svg,
@@ -2569,7 +2829,7 @@ document.querySelectorAll('.ring-svg').forEach(svg => {
         onUpdate() {
           const v = this.targets()[0].v;
           ring.setAttribute('stroke-dashoffset', circ - (circ * v / 100));
-          if (label) label.textContent = Math.round(v) + '%';
+          if (label) label.textContent = fmt(v);
         }
       });
     },
