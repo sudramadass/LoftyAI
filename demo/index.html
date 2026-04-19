@@ -221,6 +221,52 @@ body {
 }
 .nav-pill-top:hover { color: #e8e8e8; background: rgba(255,255,255,.06); }
 .nav-pill-top.active { background: rgba(255,255,255,.1); color: #fff; font-weight: 600; }
+
+/* ── Chat Panel ── */
+#chat-panel { transition: transform .42s cubic-bezier(.16,1,.3,1); }
+#chat-panel.open { transform: translateY(0) !important; }
+.chat-bubble-user { background: #2a2a2a; border-radius: 16px 16px 4px 16px; }
+.chat-bubble-ai { background: #1e1e1e; border: 1px solid rgba(255,255,255,.06); border-radius: 16px 16px 16px 4px; }
+.chat-input-box {
+  background: #1e1e1e; border: 1px solid rgba(255,255,255,.1); border-radius: 10px;
+  color: #e8e8e8; outline: none; resize: none; width: 100%;
+  font-family: 'Sora', sans-serif;
+}
+.chat-input-box:focus { border-color: rgba(255,255,255,.2); }
+.chat-input-box::placeholder { color: #444; }
+.chat-send-btn {
+  background: #e8e8e8; color: #0d0d0d; border-radius: 8px; border: none;
+  cursor: pointer; transition: background .15s; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+}
+.chat-send-btn:hover { background: #fff; }
+.chat-send-btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; }
+
+/* ── Filter pills (CRM) ── */
+.filter-pill {
+  padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,.08); background: transparent;
+  color: #666; cursor: pointer; transition: all .15s;
+}
+.filter-pill:hover { color: #aaa; border-color: rgba(255,255,255,.15); }
+.filter-pill.active { background: rgba(255,255,255,.08); color: #e8e8e8; border-color: rgba(255,255,255,.15); }
+
+/* ── CRM row ── */
+.crm-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 90px 80px 110px 130px;
+  gap: 12px; align-items: center;
+  padding: 11px 16px; cursor: pointer; transition: background .15s;
+}
+.crm-row:hover { background: rgba(255,255,255,.03); }
+.crm-score-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,.07); overflow: hidden; }
+.crm-score-fill { height: 100%; border-radius: 2px; background: #888; }
+.type-badge {
+  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 100px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  background: rgba(255,255,255,.07); color: #777;
+}
 </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -253,15 +299,15 @@ body {
 
   <!-- Nav -->
   <div class="flex-1 flex flex-col gap-0.5 px-3">
-    <a href="#" class="nav-link active">
+    <a href="#" onclick="showView('ai');setNavActive(this)" class="nav-link active" id="nav-ai">
       <span class="material-symbols-outlined text-[18px]">smart_toy</span>
       AI Copilots
     </a>
-    <a href="#" class="nav-link">
+    <a href="#" onclick="showView('crm');setNavActive(this)" class="nav-link" id="nav-crm">
       <span class="material-symbols-outlined text-[18px]">group</span>
       CRM
     </a>
-    <a href="#" class="nav-link">
+    <a href="#" onclick="showView('classic');setNavActive(this)" class="nav-link" id="nav-classic">
       <span class="material-symbols-outlined text-[18px]">real_estate_agent</span>
       Transactions
     </a>
@@ -949,6 +995,55 @@ body {
 
   </div><!-- /view-classic -->
 
+
+  <!-- ══════════════════════════════════
+       CRM VIEW
+  ══════════════════════════════════ -->
+  <div id="view-crm" class="hidden max-w-[1080px]">
+
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
+      <div>
+        <h1 class="text-[22px] font-bold text-white mb-1">CRM · All Leads</h1>
+        <p class="text-[13px] text-[#555]">26 leads · Sorted by AI score · Click any row to view details</p>
+      </div>
+      <div class="relative">
+        <span class="material-symbols-outlined text-[16px] text-[#555] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">search</span>
+        <input id="crm-search" oninput="filterLeads()" placeholder="Search by name, email, city…"
+               style="background:#1e1e1e;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 14px 8px 36px;font-size:12.5px;color:#e8e8e8;outline:none;width:240px;font-family:'Sora',sans-serif;"
+               onfocus="this.style.borderColor='rgba(255,255,255,.18)'"
+               onblur="this.style.borderColor='rgba(255,255,255,.08)'" />
+      </div>
+    </div>
+
+    <!-- Type filter pills -->
+    <div class="flex flex-wrap gap-1.5 mb-4 f1">
+      <button onclick="setLeadFilter('All')" class="filter-pill active" data-filter="All">All (26)</button>
+      <button onclick="setLeadFilter('Buyer')" class="filter-pill" data-filter="Buyer">Buyer</button>
+      <button onclick="setLeadFilter('Seller')" class="filter-pill" data-filter="Seller">Seller</button>
+      <button onclick="setLeadFilter('Investor')" class="filter-pill" data-filter="Investor">Investor</button>
+      <button onclick="setLeadFilter('Renter')" class="filter-pill" data-filter="Renter">Renter</button>
+      <button onclick="setLeadFilter('Agent')" class="filter-pill" data-filter="Agent">Agent</button>
+      <button onclick="setLeadFilter('Landlord')" class="filter-pill" data-filter="Landlord">Landlord</button>
+      <button onclick="setLeadFilter('Homeowner')" class="filter-pill" data-filter="Homeowner">Homeowner</button>
+      <button onclick="setLeadFilter('Other')" class="filter-pill" data-filter="Other">Other</button>
+    </div>
+
+    <!-- Lead table -->
+    <div class="card overflow-hidden f2">
+      <div class="crm-row border-b border-[rgba(255,255,255,.05)]" style="cursor:default;padding:8px 16px;">
+        <div></div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Lead</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Type</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">AI Score</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Source</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#3a3a3a]">Budget / City</div>
+      </div>
+      <div id="crm-lead-list"></div>
+    </div>
+
+  </div><!-- /view-crm -->
+
+
   </div><!-- /scrollable content -->
 </div><!-- /main flex col -->
 
@@ -1034,19 +1129,121 @@ body {
 </aside>
 
 
-<!-- Floating help button -->
-<button class="fixed bottom-6 right-6 z-[60] px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 active:scale-97"
+<!-- Floating AI button -->
+<button id="help-btn" onclick="openChat()" class="fixed bottom-6 right-6 z-[60] px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 active:scale-97"
         style="background:#1e1e1e;border:1px solid rgba(255,255,255,.1);">
   <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#3d3d3d;">
     <svg width="12" height="12" viewBox="0 0 32 32" fill="none">
       <path d="M6 4v24M6 16L21 4M15 18l12 10" stroke="#e8e8e8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>
-  <span class="text-[12.5px] font-semibold text-white">Need help?</span>
+  <span class="text-[12.5px] font-semibold text-white">Lofty AI</span>
 </button>
 
 
+<!-- ═══════════════════════════════════
+     GEMINI AI CHAT PANEL
+═══════════════════════════════════ -->
+<div id="chat-panel"
+     class="fixed bottom-0 right-6 z-[70] w-[380px] flex flex-col rounded-t-2xl overflow-hidden"
+     style="background:#141414;border:1px solid rgba(255,255,255,.1);border-bottom:none;transform:translateY(100%);max-height:540px;">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-4 flex-shrink-0" style="border-bottom:1px solid rgba(255,255,255,.07);">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#3d3d3d;">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+          <path d="M6 4v24M6 16L21 4M15 18l12 10" stroke="#e8e8e8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-[13.5px] font-bold text-white">Lofty AI</div>
+        <div class="flex items-center gap-1.5">
+          <span class="live-dot pulse" style="width:5px;height:5px;"></span>
+          <span class="text-[10.5px] text-[#555]">Powered by Gemini 2.0 Flash</span>
+        </div>
+      </div>
+    </div>
+    <button onclick="closeChat()" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#555] hover:text-white transition-colors">
+      <span class="material-symbols-outlined text-[18px]">close</span>
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div id="chat-messages" class="flex-1 overflow-y-auto p-4" style="min-height:320px;max-height:370px;">
+    <div class="flex justify-start mb-3">
+      <div class="chat-bubble-ai max-w-[90%] px-4 py-3 text-[12.5px] leading-relaxed text-[#e0e0e0]">
+        Hi Sarah! I've analyzed your 26 leads and today's pipeline.<br><br>
+        <strong>Top priority:</strong> Call Brandon Allen now — rate lock expires April 22 and it's been 14 days since contact.<br><br>
+        Ask me anything about your leads, follow-up scripts, or market insights.
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="flex-shrink-0 px-4 py-3" style="border-top:1px solid rgba(255,255,255,.06);">
+    <div class="flex items-end gap-2">
+      <textarea id="chat-input"
+                placeholder="Ask about leads, follow-ups, market insights…"
+                class="chat-input-box flex-1 px-3 py-2.5 text-[12.5px]"
+                rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
+                oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,96)+'px'"></textarea>
+      <button id="chat-send" onclick="sendMessage()" class="chat-send-btn">
+        <span class="material-symbols-outlined text-[17px]">send</span>
+      </button>
+    </div>
+    <div class="text-[10px] text-[#333] mt-1.5 text-center">Enter to send · Shift+Enter for new line</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     LEAD DETAIL MODAL
+═══════════════════════════════════ -->
+<div id="lead-modal"
+     class="fixed inset-0 z-[80] flex items-center justify-center opacity-0 pointer-events-none"
+     style="background:rgba(0,0,0,.75);backdrop-filter:blur(6px);transition:opacity .2s;"
+     onclick="if(event.target===this)closeLeadModal()">
+  <div class="w-full max-w-sm mx-4 rounded-2xl overflow-hidden" style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);">
+    <div id="lead-modal-content"></div>
+  </div>
+</div>
+
+
 <script>
+/* ════════════════════════════════════
+   LEADS DATA — from CSV export
+════════════════════════════════════ */
+const LEADS = [
+  { id:1,  first:'Samuel',   last:'Scott',     type:'Buyer',     email:'samuel.scott@gmail.com',    phone:'(617) 438-9890', source:'YouTube',        minPrice:319000, maxPrice:401000,  city:'Mesa',      score:74, initials:'SS', daysAgo:0  },
+  { id:2,  first:'Daniel',   last:'Thomas',    type:'Seller',    email:'daniel.thomas@gmail.com',   phone:'(335) 457-2127', source:'Instagram',      score:52, initials:'DT', daysAgo:3  },
+  { id:3,  first:'Fatima',   last:'Jackson',   type:'Landlord',  email:'fatima.jackson@gmail.com',  phone:'(934) 451-4335', source:'Zillow',         score:61, initials:'FJ', daysAgo:1  },
+  { id:4,  first:'Yuki',     last:'Young',     type:'Buyer',     email:'yuki.young@gmail.com',      phone:'(660) 365-5050', source:'Email Campaign', minPrice:556000, maxPrice:687000,  city:'Surprise',  score:68, initials:'YY', daysAgo:2  },
+  { id:5,  first:'Carlos',   last:'Garcia',    type:'Other',     email:'carlos.garcia@gmail.com',   phone:'(562) 533-7735', source:'Zillow',         minPrice:196000, maxPrice:295000,  city:'Glendale',  score:44, initials:'CG', daysAgo:7  },
+  { id:6,  first:'David',    last:'Williams',  type:'Seller',    email:'david.williams@gmail.com',  phone:'(367) 573-7216', source:'Cold Call',      score:38, initials:'DW', daysAgo:5  },
+  { id:7,  first:'Sofia',    last:'Kim',       type:'Agent',     email:'sofia.kim@gmail.com',       phone:'(962) 674-9830', source:'Referral',       score:71, initials:'SK', daysAgo:1  },
+  { id:8,  first:'Kevin',    last:'Lee',       type:'Agent',     email:'kevin.lee@gmail.com',       phone:'(259) 693-9883', source:'Podcast',        score:83, initials:'KL', daysAgo:28, birthday:true },
+  { id:9,  first:'Aisha',    last:'Patel',     type:'Landlord',  email:'aisha.patel@gmail.com',     phone:'(980) 265-9837', source:'Zillow',         score:55, initials:'AP', daysAgo:4  },
+  { id:10, first:'Tyler',    last:'Harris',    type:'Landlord',  email:'tyler.harris@gmail.com',    phone:'(277) 807-3442', source:'Walk-In',        score:49, initials:'TH', daysAgo:6  },
+  { id:11, first:'Jennifer', last:'Lewis',     type:'Other',     email:'jennifer.lewis@gmail.com',  phone:'(594) 690-4114', source:'Facebook',       minPrice:421000, maxPrice:694000,  city:'Tucson',    score:61, initials:'JL', daysAgo:2  },
+  { id:12, first:'Chris',    last:'Walker',    type:'Investor',  email:'chris.walker@gmail.com',    phone:'(396) 530-7211', source:'Podcast',        score:66, initials:'CW', daysAgo:9  },
+  { id:13, first:'Brandon',  last:'Allen',     type:'Buyer',     email:'brandon.allen@gmail.com',   phone:'(351) 771-1090', source:'Google',         minPrice:606000, maxPrice:860000,  city:'Tucson',    score:88, initials:'BA', daysAgo:14, urgent:true },
+  { id:14, first:'Emily',    last:'Wilson',    type:'Renter',    email:'emily.wilson@gmail.com',    phone:'(272) 824-1964', source:'Facebook',       minPrice:702000, maxPrice:864000,  city:'Tucson',    score:61, initials:'EW', daysAgo:3  },
+  { id:15, first:'Robert',   last:'Davis',     type:'Homeowner', email:'robert.davis@gmail.com',    phone:'(762) 269-5342', source:'Walk-In',        score:33, initials:'RD', daysAgo:12 },
+  { id:16, first:'Andre',    last:'Nelson',    type:'Investor',  email:'andre.nelson@gmail.com',    phone:'(588) 435-4467', source:'Instagram',      score:58, initials:'AN', daysAgo:5  },
+  { id:17, first:'James',    last:'Johnson',   type:'Buyer',     email:'james.johnson@gmail.com',   phone:'(548) 384-3547', source:'Cold Call',      minPrice:263000, maxPrice:670000,  city:'Tucson',    score:56, initials:'JJ', daysAgo:8  },
+  { id:18, first:'Natasha',  last:'Robinson',  type:'Homeowner', email:'natasha.robinson@gmail.com',phone:'(442) 985-3662', source:'Facebook',       score:29, initials:'NR', daysAgo:20 },
+  { id:19, first:'Maria',    last:'Martinez',  type:'Investor',  email:'maria.martinez@gmail.com',  phone:'(791) 296-2139', source:'Walk-In',        score:63, initials:'MM', daysAgo:3  },
+  { id:20, first:'Mei',      last:'Hall',      type:'Buyer',     email:'mei.hall@gmail.com',        phone:'(874) 186-5649', source:'Facebook',       minPrice:584000, maxPrice:1040000, city:'Glendale',  score:72, initials:'MH', daysAgo:1  },
+  { id:21, first:'Omar',     last:'Clark',     type:'Renter',    email:'omar.clark@gmail.com',      phone:'(875) 297-7528', source:'Walk-In',        minPrice:333000, maxPrice:497000,  city:'Glendale',  score:47, initials:'OC', daysAgo:6  },
+  { id:22, first:'Linda',    last:'Taylor',    type:'Homeowner', email:'linda.taylor@gmail.com',    phone:'(295) 871-4872', source:'Google',         score:41, initials:'LT', daysAgo:15 },
+  { id:23, first:'Priya',    last:'Anderson',  type:'Seller',    email:'priya.anderson@gmail.com',  phone:'(834) 183-7868', source:'Instagram',      score:69, initials:'PA', daysAgo:2  },
+  { id:24, first:'(Unknown)',last:'',          type:'Other',     phone:'(634) 545-3322',            source:'Other',          score:12, initials:'??', daysAgo:1  },
+  { id:25, first:'Rachel',   last:'Adams',     type:'Agent',     email:'rachel.adams@gmail.com',    phone:'(424) 379-8140', source:'Email Campaign', score:77, initials:'RA', daysAgo:4  },
+  { id:26, first:'Michael',  last:'Brown',     type:'Renter',    email:'michael.brown@gmail.com',   phone:'(741) 357-1188', source:'Instagram',      minPrice:490000, maxPrice:845000,  city:'Tucson',    score:53, initials:'MB', daysAgo:7  },
+];
+
 /* ── Live time ── */
 function updateTime() {
   const el = document.getElementById('live-time');
@@ -1059,17 +1256,20 @@ updateTime(); setInterval(updateTime, 60000);
 
 /* ── View toggle ── */
 function showView(v) {
-  const ai = document.getElementById('view-ai');
-  const cl = document.getElementById('view-classic');
-  const btnAi = document.getElementById('btn-ai');
-  const btnCl = document.getElementById('btn-classic');
-  if (v === 'ai') {
-    ai.classList.remove('hidden'); cl.classList.add('hidden');
-    btnAi.classList.add('active'); btnCl.classList.remove('active');
-  } else {
-    cl.classList.remove('hidden'); ai.classList.add('hidden');
-    btnCl.classList.add('active'); btnAi.classList.remove('active');
-  }
+  ['ai','classic','crm'].forEach(id => {
+    const el = document.getElementById('view-' + id);
+    if (el) el.classList.toggle('hidden', id !== v);
+  });
+  // Top toggle buttons
+  ['ai','classic'].forEach(id => {
+    document.getElementById('btn-' + id)?.classList.toggle('active', id === v);
+  });
+  if (v === 'crm') renderLeads();
+}
+
+function setNavActive(el) {
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
 }
 
 /* ── Why panels ── */
@@ -1087,7 +1287,7 @@ function toggleWhy(id, btn) {
   btn.style.color = !isOpen ? '#d4d4d4' : '';
 }
 
-/* ── Sidebar ── */
+/* ── Right sidebar ── */
 function openSidebar() {
   const s = document.getElementById('right-sidebar');
   const o = document.getElementById('sidebar-overlay');
@@ -1101,6 +1301,214 @@ function closeSidebar() {
   s.classList.add('translate-x-full');
   o.classList.add('opacity-0');
   setTimeout(() => o.classList.add('pointer-events-none'), 420);
+}
+
+/* ════════════════════════════════════
+   CRM VIEW
+════════════════════════════════════ */
+let crmFilter = 'All';
+let crmSearch = '';
+
+function setLeadFilter(type) {
+  crmFilter = type;
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.filter === type);
+  });
+  renderLeads();
+}
+
+function filterLeads() {
+  crmSearch = (document.getElementById('crm-search')?.value || '').toLowerCase();
+  renderLeads();
+}
+
+function renderLeads() {
+  const container = document.getElementById('crm-lead-list');
+  if (!container) return;
+  const filtered = LEADS
+    .filter(l => {
+      const matchType = crmFilter === 'All' || l.type === crmFilter;
+      const term = crmSearch;
+      const matchSearch = !term ||
+        (l.first + ' ' + l.last).toLowerCase().includes(term) ||
+        (l.email || '').toLowerCase().includes(term) ||
+        (l.city || '').toLowerCase().includes(term) ||
+        l.type.toLowerCase().includes(term);
+      return matchType && matchSearch;
+    })
+    .sort((a, b) => b.score - a.score);
+
+  container.innerHTML = filtered.length ? filtered.map(l => `
+    <div class="crm-row border-b border-[rgba(255,255,255,.04)]" onclick="openLeadDetail(${l.id})">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+           style="background:rgba(255,255,255,.09);">${l.initials}</div>
+      <div class="min-w-0">
+        <div class="text-[13px] font-semibold text-white truncate">${l.first} ${l.last}${l.birthday ? ' 🎂' : ''}${l.urgent ? ' ⚠' : ''}</div>
+        <div class="text-[11px] text-[#555] truncate">${l.email || l.phone}</div>
+      </div>
+      <div><span class="type-badge">${l.type}</span></div>
+      <div>
+        <div class="text-[13px] font-semibold text-white mb-1">${l.score}</div>
+        <div class="crm-score-bar"><div class="crm-score-fill" style="width:${l.score}%"></div></div>
+      </div>
+      <div class="text-[12px] text-[#666]">${l.source}</div>
+      <div class="text-[11.5px] text-[#555]">${l.minPrice ? '$' + Math.round(l.minPrice/1000) + 'K–$' + Math.round(l.maxPrice/1000) + 'K' : (l.city || '—')}</div>
+    </div>
+  `).join('') : `<div class="px-6 py-8 text-[13px] text-[#444] text-center">No leads match your filter.</div>`;
+}
+
+/* ── Lead Detail Modal ── */
+function openLeadDetail(id) {
+  const l = LEADS.find(x => x.id === id);
+  if (!l) return;
+  const modal = document.getElementById('lead-modal');
+  const content = document.getElementById('lead-modal-content');
+  const fmt = n => '$' + Math.round(n/1000) + 'K';
+  content.innerHTML = `
+    <div class="p-6">
+      <div class="flex items-start justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-[14px] font-bold text-white flex-shrink-0"
+               style="background:rgba(255,255,255,.09);">${l.initials}</div>
+          <div>
+            <div class="text-[17px] font-bold text-white leading-tight">${l.first} ${l.last}</div>
+            <span class="type-badge mt-1">${l.type}</span>
+          </div>
+        </div>
+        <div class="text-right ml-4">
+          <div class="text-[10px] text-[#555] mb-0.5">AI Score</div>
+          <div class="text-[28px] font-bold text-white leading-none">${l.score}</div>
+        </div>
+      </div>
+      <div class="crm-score-bar mb-4"><div class="crm-score-fill" style="width:${l.score}%"></div></div>
+      <div class="space-y-2.5 mb-5">
+        ${l.email ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">mail</span><span class="text-[12.5px] text-[#aaa]">${l.email}</span></div>` : ''}
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">phone</span><span class="text-[12.5px] text-[#aaa]">${l.phone}</span></div>
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">hub</span><span class="text-[12.5px] text-[#aaa]">Source: ${l.source}</span></div>
+        ${l.city ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">location_on</span><span class="text-[12.5px] text-[#aaa]">${l.city}, AZ</span></div>` : ''}
+        ${l.minPrice ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">attach_money</span><span class="text-[12.5px] text-[#aaa]">Budget: ${fmt(l.minPrice)} – ${fmt(l.maxPrice)}</span></div>` : ''}
+        <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">schedule</span><span class="text-[12.5px] text-[#aaa]">Last contact: ${l.daysAgo === 0 ? 'Today' : l.daysAgo + ' days ago'}</span></div>
+        ${l.birthday ? `<div class="flex items-center gap-3"><span class="material-symbols-outlined text-[15px] text-[#555] flex-shrink-0">cake</span><span class="text-[12.5px] text-[#aaa]">Birthday today — great time to reach out</span></div>` : ''}
+      </div>
+      <div class="flex gap-2 mb-3">
+        <button class="btn-primary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">phone</span> Call
+        </button>
+        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">sms</span> Text
+        </button>
+        <button class="btn-secondary flex-1 justify-center" onclick="closeLeadModal()">
+          <span class="material-symbols-outlined text-[14px]">mail</span> Email
+        </button>
+      </div>
+      <button onclick="closeLeadModal()" class="w-full text-center text-[11.5px] text-[#444] hover:text-[#888] transition-colors py-1">Dismiss</button>
+    </div>
+  `;
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+}
+function closeLeadModal() {
+  document.getElementById('lead-modal').classList.add('opacity-0', 'pointer-events-none');
+}
+
+/* ════════════════════════════════════
+   GEMINI AI CHAT
+════════════════════════════════════ */
+const GEMINI_KEY = 'AIzaSyC9Td15CWPYRT4lQwJXWb8Q5yBbKilRPzw';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+
+const SYSTEM_PROMPT = `You are Lofty AI, an intelligent real estate CRM assistant built into the Lofty platform, helping Sarah Martinez — a real estate agent at Keller Williams AZ. Today is April 19, 2026.
+
+Sarah has 26 leads in her CRM. Today's AI-prioritized top 3:
+1. Brandon Allen (Score 88, URGENT) — Buyer, $606K–$860K, Tucson AZ. Viewed 4891 E Sunrise Dr twice + 2 other listings in 48hrs. Rate lock expires April 22 (3 days). 14 days since last contact. Source: Google.
+2. Samuel Scott (Score 74) — Buyer, $319K–$401K, Mesa AZ. Returned to site after 12-day absence. 19 min on 3488 Cedar St — floor plan viewed 3× and school district page. 2 price-reduced Mesa listings match his search. Source: YouTube.
+3. Kevin Lee (Score 83) — Past client/Agent. Birthday TODAY. Last contact 28 days ago (approaching cold zone). Interested in Surprise investment properties (6–7% cap rate). 2 referrals sent. Source: Podcast.
+
+Other leads worth mentioning: Mei Hall (72, Facebook, Buyer $584K–$1.04M Glendale), Rachel Adams (77, Email Campaign, Agent), Sofia Kim (71, Referral, Agent), Priya Anderson (69, Instagram, Seller), Yuki Young (68, Email Campaign, Buyer $556K–$687K Surprise), Chris Walker (66, Podcast, Investor), Maria Martinez (63, Walk-In, Investor), Fatima Jackson (61, Zillow, Landlord), Jennifer Lewis (61, Facebook, Buyer $421K–$694K Tucson), Emily Wilson (61, Facebook, Renter).
+
+Active transactions: 2847 S Rural Rd (deadline in 48 hours — urgent), 1204 W Baseline (on track).
+AI worked overnight: 12 follow-up emails sent, 35 lead scores updated, 8 buyer-listing matches found.
+Today's showings: 2pm and 4:30pm.
+
+You can help Sarah with: lead prioritization, writing follow-up texts/emails, market insights for AZ, scheduling advice, explaining AI scores, next best actions. Be concise, warm, and actionable. Use bullet points for lists. Keep responses under 200 words unless asked for more detail.`;
+
+const chatHistory = [];
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addBubble('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  const btn = document.getElementById('chat-send');
+  btn.disabled = true;
+  const tid = addTyping();
+  chatHistory.push({ role: 'user', parts: [{ text }] });
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: chatHistory,
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
+      })
+    });
+    const data = await res.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+      || (data.error ? `Error: ${data.error.message}` : 'Something went wrong — please try again.');
+    removeTyping(tid);
+    chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+    addBubble('ai', reply);
+  } catch (e) {
+    removeTyping(tid);
+    addBubble('ai', 'Network error — check your connection and try again.');
+  }
+  btn.disabled = false;
+}
+
+function addBubble(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-3`;
+  const html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+  div.innerHTML = `<div class="max-w-[88%] px-4 py-3 text-[12.5px] leading-relaxed ${role === 'user' ? 'chat-bubble-user text-white' : 'chat-bubble-ai text-[#e0e0e0]'}">${html}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+let _tc = 0;
+function addTyping() {
+  const id = 'ty-' + (++_tc);
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'flex justify-start mb-3';
+  div.innerHTML = `<div class="chat-bubble-ai px-4 py-3 flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .0s infinite"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .2s infinite"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#555] inline-block" style="animation:pulseDot 1.2s .4s infinite"></span>
+  </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+function removeTyping(id) { document.getElementById(id)?.remove(); }
+
+function openChat() {
+  document.getElementById('chat-panel').classList.add('open');
+  document.getElementById('help-btn').style.opacity = '0';
+  document.getElementById('help-btn').style.pointerEvents = 'none';
+  setTimeout(() => document.getElementById('chat-input')?.focus(), 450);
+}
+function closeChat() {
+  document.getElementById('chat-panel').classList.remove('open');
+  const btn = document.getElementById('help-btn');
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = '';
 }
 </script>
 </body>
