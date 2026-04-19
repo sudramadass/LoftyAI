@@ -136,6 +136,59 @@ body {
   font-size: 12px; font-weight: 700; flex-shrink: 0;
 }
 
+/* ── Chart cards ── */
+.chart-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (min-width: 768px) {
+  .chart-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.chart-card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+}
+.chart-card-title {
+  margin-bottom: 16px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #555;
+}
+.chart-card-stat {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: rgba(255,255,255,0.05);
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-align: right;
+  font-size: 10px;
+  color: #555;
+}
+.chart-card-stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #22c55e;
+  margin-top: 2px;
+}
+.chart-canvas { width: 100%; height: 240px; }
+.chart-callout {
+  display: block;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 11px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.chart-callout:hover { color: #888; text-decoration: underline; }
+
 /* ── Icon tile ── */
 .icon-tile {
   width: 34px; height: 34px; border-radius: 8px;
