@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 <!-- dgc-policy-v11 -->
 # Dual-Graph Context Policy
 
@@ -79,3 +83,53 @@ When the user signals they are done (e.g. "bye", "done", "wrap up", "end session
 - **Next Steps**: bullet list, max 3 items
 
 Keep `CONTEXT.md` under 20 lines total. Do NOT summarize the full conversation — only what's needed to resume next session.
+
+---
+
+## Project Overview
+
+**Lofty** is an AI-powered morning briefing tool for real estate agents. It surfaces prioritized leads, market signals, and action items each morning via a single-page web UI.
+
+The repo is a **static frontend prototype** — no build system, no bundler, no backend. Open `demo/index.html` directly in a browser.
+
+## Repository Layout
+
+```
+LoftyAI/
+├── demo/
+│   ├── index.html          # Entire UI — ~1500 lines of self-contained HTML/CSS/JS
+│   ├── house1.png
+│   └── house2.png
+├── stitch_empathetic_humanized_design (2)/
+│   ├── code.html           # Alternate design iteration
+│   └── DESIGN.md           # Canonical design system spec ("The Midnight Concierge")
+├── Lofty Main.pdf          # Product overview / pitch deck
+└── LoftyLead_*.csv         # Sample lead data
+```
+
+## Design System — "The Midnight Concierge"
+
+The authoritative spec is `stitch_empathetic_humanized_design (2)/DESIGN.md`. Key constraints:
+
+- **No 1px borders for sectioning** — tonal surface shifts only. Use `outline_variant` at 20% opacity only for accessibility in input fields ("ghost border").
+- **Surface hierarchy** (dark → light): `#0e0e0e` → `#131313` → `#1f1f1f` → `#2a2a2a`. Never nest more than 3 levels.
+- **Typography**: Manrope (design spec) / Sora (current demo implementation). Hero metrics use `display-lg` (3.5rem). Body text minimum `0.875rem`.
+- **Accent colors**: teal `#71d7cd` (primary), terracotta `#ffb692` (tertiary/"human" moments). Do not use pure `#ffffff` for text — use `#e2e2e2`.
+- **Cards**: `xl` (1.5rem) border-radius on image containers. No 1px dividers between list items — use 24px vertical whitespace instead.
+- **Floating elements**: `surface_container` at 70% opacity + `24px` backdrop-blur.
+- **Shadows**: 40px blur, 6% opacity, tinted (not pure black).
+- **Min tap target**: 44px for all interactive elements.
+
+## UI Architecture (`demo/index.html`)
+
+All styles, markup, and logic are in one file. Structure:
+
+- **Left sidebar** (200px fixed): navigation links with `.nav-link` / `.nav-link.active`
+- **Top strip**: view toggle buttons (`.toggle-btn`)
+- **Main content**: priority-banded lead cards with `.band-urgent`, `.band-warm`, `.band-today`
+- **Right sidebar** (`#right-sidebar`): slide-in detail panel, animated via CSS transform
+- **"Why" panels**: collapsible explanations per lead, toggled via `.why-panel.open`
+
+JavaScript is inline vanilla JS — no frameworks. Animations use CSS keyframes (`fadeInUp`, `pulseDot`, `floatBob`, `breathe`).
+
+External dependencies (CDN only): Tailwind CSS, Google Fonts (Sora + Material Symbols Outlined).
