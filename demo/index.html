@@ -367,19 +367,19 @@ body {
       <span class="material-symbols-outlined text-[18px]">real_estate_agent</span>
       Transactions
     </a>
-    <a href="#" class="nav-link">
+    <a href="#" onclick="showView('marketing');setNavActive(this)" class="nav-link" id="nav-marketing">
       <span class="material-symbols-outlined text-[18px]">campaign</span>
       Marketing
     </a>
-    <a href="#" class="nav-link">
+    <a href="#" onclick="showView('listings');setNavActive(this)" class="nav-link" id="nav-listings">
       <span class="material-symbols-outlined text-[18px]">list_alt</span>
       Listings
     </a>
-    <a href="#" class="nav-link">
+    <a href="#" onclick="showView('reporting');setNavActive(this)" class="nav-link" id="nav-reporting">
       <span class="material-symbols-outlined text-[18px]">bar_chart</span>
       Reporting
     </a>
-    <a href="#" class="nav-link">
+    <a href="#" onclick="showView('notifications');setNavActive(this)" class="nav-link" id="nav-notifications">
       <span class="material-symbols-outlined text-[18px]">notifications</span>
       Notifications
     </a>
@@ -1116,6 +1116,412 @@ body {
   </div><!-- /view-crm -->
 
 
+  <!-- ══════════════════════════════════
+       MARKETING VIEW
+  ══════════════════════════════════ -->
+  <div id="view-marketing" class="hidden max-w-[1080px]">
+
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
+      <div>
+        <h1 class="text-[22px] font-bold text-white mb-1">Marketing</h1>
+        <p class="text-[13px] text-[#555]">Smart Plans, campaigns, and outreach performance</p>
+      </div>
+      <button class="btn-primary">
+        <span class="material-symbols-outlined text-[15px]">add</span> New Campaign
+      </button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 f1">
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">12</div>
+        <div class="text-[11px] text-[#555] mt-0.5">Emails Sent Today</div>
+        <div class="text-[10.5px] mt-1 font-medium" style="color:#bbbbbb;">↑ via Smart Plans</div>
+      </div>
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">34%</div>
+        <div class="text-[11px] text-[#555] mt-0.5">Open Rate</div>
+        <div class="text-[10.5px] mt-1 font-medium" style="color:#bbbbbb;">↑ +6% vs avg</div>
+      </div>
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">3</div>
+        <div class="text-[11px] text-[#555] mt-0.5">Active Campaigns</div>
+        <div class="text-[10.5px] mt-1 text-[#555]">2 scheduled</div>
+      </div>
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">8</div>
+        <div class="text-[11px] text-[#555] mt-0.5">Replies This Week</div>
+        <div class="text-[10.5px] mt-1 font-medium" style="color:#bbbbbb;">3 high-intent</div>
+      </div>
+    </div>
+
+    <!-- Active campaigns -->
+    <div class="card overflow-hidden f2">
+      <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid rgba(255,255,255,.05);">
+        <h3 class="text-[10.5px] font-bold uppercase tracking-widest text-[#555]">Active Campaigns</h3>
+      </div>
+      <div class="divide-y divide-[rgba(255,255,255,.04)]">
+
+        <div class="px-5 py-4 flex items-center gap-4 card-lift">
+          <div class="icon-tile" style="background:rgba(180,180,180,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#c4c4c4;">mail</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">Buyer Re-Engagement — Mesa & Scottsdale</div>
+            <div class="text-[11.5px] text-[#555] mt-0.5">Smart Plan · 7-touch sequence · Day 3 of 7</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-semibold text-white">26 recipients</div>
+            <div class="text-[10.5px] text-[#555]">38% open rate</div>
+          </div>
+          <span class="chip" style="background:rgba(180,180,180,.1);color:#c4c4c4;">ACTIVE</span>
+        </div>
+
+        <div class="px-5 py-4 flex items-center gap-4 card-lift">
+          <div class="icon-tile" style="background:rgba(160,160,160,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#aaaaaa;">sms</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">Birthday Outreach — April</div>
+            <div class="text-[11.5px] text-[#555] mt-0.5">Automated · Text + email · Kevin Lee triggered today</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-semibold text-white">4 this month</div>
+            <div class="text-[10.5px] text-[#555]">100% delivered</div>
+          </div>
+          <span class="chip" style="background:rgba(180,180,180,.1);color:#c4c4c4;">ACTIVE</span>
+        </div>
+
+        <div class="px-5 py-4 flex items-center gap-4 card-lift">
+          <div class="icon-tile" style="background:rgba(150,150,150,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#999999;">home</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">New Listing Alert — Surprise Investors</div>
+            <div class="text-[11.5px] text-[#555] mt-0.5">Hot Sheet match · Off-market · Sent to 3 contacts</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-semibold text-white">3 recipients</div>
+            <div class="text-[10.5px] text-[#555]">2 opened</div>
+          </div>
+          <span class="chip" style="background:rgba(150,150,150,.1);color:#999999;">SENT</span>
+        </div>
+
+        <div class="px-5 py-4 flex items-center gap-4 card-lift">
+          <div class="icon-tile" style="background:rgba(120,120,120,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#777777;">schedule</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">Market Report — Scottsdale Q2</div>
+            <div class="text-[11.5px] text-[#555] mt-0.5">Scheduled · May 1 · 14 recipients</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-semibold text-white">14 recipients</div>
+            <div class="text-[10.5px] text-[#555]">Scheduled May 1</div>
+          </div>
+          <span class="chip" style="background:rgba(120,120,120,.1);color:#777777;">SCHEDULED</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /view-marketing -->
+
+
+  <!-- ══════════════════════════════════
+       LISTINGS VIEW
+  ══════════════════════════════════ -->
+  <div id="view-listings" class="hidden max-w-[1080px]">
+
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
+      <div>
+        <h1 class="text-[22px] font-bold text-white mb-1">My Listings</h1>
+        <p class="text-[13px] text-[#555]">Active listings with AI-matched lead engagement</p>
+      </div>
+      <button class="btn-primary">
+        <span class="material-symbols-outlined text-[15px]">add</span> Add Listing
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 f1">
+
+      <!-- Listing 1 -->
+      <div class="card overflow-hidden card-lift">
+        <img src="house1.png" alt="4891 E Sunrise Dr" class="w-full object-cover" style="height:180px;"/>
+        <div class="p-5">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="text-[15px] font-bold text-white leading-tight">4891 E Sunrise Dr</div>
+              <div class="text-[12px] text-[#555]">Tucson, AZ 85718 · $819,000</div>
+            </div>
+            <span class="chip" style="background:rgba(180,180,180,.1);color:#c4c4c4;">ACTIVE</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-3">
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">68</div>
+              <div class="text-[10px] text-[#555]">Views / week</div>
+            </div>
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">3</div>
+              <div class="text-[10px] text-[#555]">Matched leads</div>
+            </div>
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">2</div>
+              <div class="text-[10px] text-[#555]">Showings</div>
+            </div>
+          </div>
+          <div class="mt-3 text-[11.5px] text-[#555]">
+            <span style="color:#c4c4c4;font-weight:500;">Brandon Allen</span> viewed 2× this week — highest intent buyer.
+          </div>
+        </div>
+      </div>
+
+      <!-- Listing 2 -->
+      <div class="card overflow-hidden card-lift">
+        <img src="house2.png" alt="3488 Cedar St" class="w-full object-cover" style="height:180px;"/>
+        <div class="p-5">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="text-[15px] font-bold text-white leading-tight">3488 Cedar St</div>
+              <div class="text-[12px] text-[#555]">Mesa, AZ 85201 · $374,000</div>
+            </div>
+            <span class="chip" style="background:rgba(180,180,180,.1);color:#c4c4c4;">ACTIVE</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-3">
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">47</div>
+              <div class="text-[10px] text-[#555]">Views / week</div>
+            </div>
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">2</div>
+              <div class="text-[10px] text-[#555]">Matched leads</div>
+            </div>
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">1</div>
+              <div class="text-[10px] text-[#555]">Showings</div>
+            </div>
+          </div>
+          <div class="mt-3 text-[11.5px] text-[#555]">
+            <span style="color:#c4c4c4;font-weight:500;">Samuel Scott</span> spent 19 min · viewed floor plan 3×.
+          </div>
+        </div>
+      </div>
+
+      <!-- Listing 3 — Pending -->
+      <div class="card overflow-hidden card-lift">
+        <div class="w-full flex items-center justify-center" style="height:180px;background:#1a1a1a;">
+          <span class="material-symbols-outlined text-[48px] text-[#333]">home_work</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="text-[15px] font-bold text-white leading-tight">2847 S Rural Rd</div>
+              <div class="text-[12px] text-[#555]">Tempe, AZ 85282 · $529,000</div>
+            </div>
+            <span class="chip" style="background:rgba(150,150,150,.1);color:#999999;">PENDING</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-3">
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">22</div>
+              <div class="text-[10px] text-[#555]">Views / week</div>
+            </div>
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">1</div>
+              <div class="text-[10px] text-[#555]">Under offer</div>
+            </div>
+            <div class="stat-tile text-center">
+              <div class="text-[16px] font-bold text-white">48h</div>
+              <div class="text-[10px] text-[#555]">To close</div>
+            </div>
+          </div>
+          <div class="mt-3 text-[11.5px]" style="color:#999999;">
+            Escrow docs due — deadline in 48 hours.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /view-listings -->
+
+
+  <!-- ══════════════════════════════════
+       REPORTING VIEW
+  ══════════════════════════════════ -->
+  <div id="view-reporting" class="hidden max-w-[1080px]">
+
+    <div class="mb-5 f1">
+      <h1 class="text-[22px] font-bold text-white mb-1">Reporting</h1>
+      <p class="text-[13px] text-[#555]">AI performance, lead conversion, and pipeline health</p>
+    </div>
+
+    <!-- Top stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 f1">
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">87%</div>
+        <div class="text-[11px] text-[#555] mt-0.5">AI Accuracy</div>
+        <div class="text-[10.5px] mt-1 font-medium" style="color:#bbbbbb;">↑ +4% vs last month</div>
+      </div>
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">23%</div>
+        <div class="text-[11px] text-[#555] mt-0.5">Lead-to-Showing</div>
+        <div class="text-[10.5px] mt-1 font-medium" style="color:#bbbbbb;">↑ +3% vs last month</div>
+      </div>
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">$2.1M</div>
+        <div class="text-[11px] text-[#555] mt-0.5">Pipeline Value</div>
+        <div class="text-[10.5px] mt-1 text-[#555]">Active deals</div>
+      </div>
+      <div class="stat-tile">
+        <div class="text-[22px] font-bold text-white">11d</div>
+        <div class="text-[11px] text-[#555] mt-0.5">Avg Response Time</div>
+        <div class="text-[10.5px] mt-1 font-medium" style="color:#888888;">↓ -3d vs last month</div>
+      </div>
+    </div>
+
+    <!-- Lead source breakdown -->
+    <div class="card p-5 mb-4 f2">
+      <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-4">Lead Sources — This Month</div>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="text-[12px] text-[#888] w-28 flex-shrink-0">Google</div>
+          <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,.07);">
+            <div class="h-full rounded-full" style="width:42%;background:#c4c4c4;"></div>
+          </div>
+          <div class="text-[12px] font-semibold text-white w-8 text-right">42%</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-[12px] text-[#888] w-28 flex-shrink-0">Zillow</div>
+          <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,.07);">
+            <div class="h-full rounded-full" style="width:24%;background:#aaaaaa;"></div>
+          </div>
+          <div class="text-[12px] font-semibold text-white w-8 text-right">24%</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-[12px] text-[#888] w-28 flex-shrink-0">Facebook</div>
+          <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,.07);">
+            <div class="h-full rounded-full" style="width:18%;background:#888888;"></div>
+          </div>
+          <div class="text-[12px] font-semibold text-white w-8 text-right">18%</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-[12px] text-[#888] w-28 flex-shrink-0">Referral</div>
+          <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,.07);">
+            <div class="h-full rounded-full" style="width:10%;background:#666666;"></div>
+          </div>
+          <div class="text-[12px] font-semibold text-white w-8 text-right">10%</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-[12px] text-[#888] w-28 flex-shrink-0">Other</div>
+          <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,.07);">
+            <div class="h-full rounded-full" style="width:6%;background:#444444;"></div>
+          </div>
+          <div class="text-[12px] font-semibold text-white w-8 text-right">6%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI accuracy bar -->
+    <div class="card p-5 f3">
+      <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-4">AI Prediction Accuracy — Last 30 Days</div>
+      <div class="flex items-end gap-3 mb-3">
+        <span class="text-[42px] font-bold text-white leading-none breathe">87%</span>
+        <span class="text-[12px] font-semibold mb-1" style="color:#bbbbbb;">↑ +4% vs last month</span>
+      </div>
+      <div class="conf-track mb-2"><div class="conf-fill" style="width:87%;"></div></div>
+      <div class="text-[11.5px] text-[#555]">Top-ranked leads converted at a higher rate than industry average (64%).</div>
+    </div>
+
+  </div><!-- /view-reporting -->
+
+
+  <!-- ══════════════════════════════════
+       NOTIFICATIONS VIEW
+  ══════════════════════════════════ -->
+  <div id="view-notifications" class="hidden max-w-[1080px]">
+
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
+      <div>
+        <h1 class="text-[22px] font-bold text-white mb-1">Notifications</h1>
+        <p class="text-[13px] text-[#555]">AI alerts, activity signals, and reminders</p>
+      </div>
+      <button class="btn-secondary text-[12px]">Mark all read</button>
+    </div>
+
+    <div class="card overflow-hidden f1">
+      <div class="divide-y divide-[rgba(255,255,255,.04)]">
+
+        <div class="px-5 py-4 flex items-start gap-4 card-lift">
+          <div class="icon-tile mt-0.5 flex-shrink-0" style="background:rgba(130,130,130,.15);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#aaaaaa;">warning</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">Rate lock expiring — Brandon Allen</div>
+            <div class="text-[12px] text-[#666] mt-0.5">Rate lock expires April 22. Last contact 14 days ago. <span style="color:#c4c4c4;font-weight:500;">Call now.</span></div>
+          </div>
+          <div class="text-[10.5px] text-[#444] flex-shrink-0">Just now</div>
+        </div>
+
+        <div class="px-5 py-4 flex items-start gap-4 card-lift">
+          <div class="icon-tile mt-0.5 flex-shrink-0" style="background:rgba(180,180,180,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#c4c4c4;">cake</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">Birthday today — Kevin Lee</div>
+            <div class="text-[12px] text-[#666] mt-0.5">Past client · 2 referrals sent · Last contact 28 days ago. <span style="color:#c4c4c4;font-weight:500;">Send birthday note.</span></div>
+          </div>
+          <div class="text-[10.5px] text-[#444] flex-shrink-0">Today</div>
+        </div>
+
+        <div class="px-5 py-4 flex items-start gap-4 card-lift">
+          <div class="icon-tile mt-0.5 flex-shrink-0" style="background:rgba(160,160,160,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#aaaaaa;">person_search</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">Samuel Scott returned to site after 12 days</div>
+            <div class="text-[12px] text-[#666] mt-0.5">19 min session · 3488 Cedar St floor plan viewed 3×. <span style="color:#c4c4c4;font-weight:500;">Send listings.</span></div>
+          </div>
+          <div class="text-[10.5px] text-[#444] flex-shrink-0">2h ago</div>
+        </div>
+
+        <div class="px-5 py-4 flex items-start gap-4 card-lift">
+          <div class="icon-tile mt-0.5 flex-shrink-0" style="background:rgba(150,150,150,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#999999;">home</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">12 new Scottsdale listings match Brandon Allen</div>
+            <div class="text-[12px] text-[#666] mt-0.5">Hot Sheet · $606K–$860K range · 3 strong matches.</div>
+          </div>
+          <div class="text-[10.5px] text-[#444] flex-shrink-0">3h ago</div>
+        </div>
+
+        <div class="px-5 py-4 flex items-start gap-4 card-lift">
+          <div class="icon-tile mt-0.5 flex-shrink-0" style="background:rgba(140,140,140,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#888888;">gavel</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">Escrow deadline in 48 hours — 2847 S Rural Rd</div>
+            <div class="text-[12px] text-[#666] mt-0.5">Docs not yet received. Escalation scheduled for 2 PM if unresolved.</div>
+          </div>
+          <div class="text-[10.5px] text-[#444] flex-shrink-0">5h ago</div>
+        </div>
+
+        <div class="px-5 py-4 flex items-start gap-4 card-lift">
+          <div class="icon-tile mt-0.5 flex-shrink-0" style="background:rgba(120,120,120,.1);">
+            <span class="material-symbols-outlined text-[16px]" style="color:#777777;">auto_awesome</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-white">AI completed overnight — 47 actions taken</div>
+            <div class="text-[12px] text-[#666] mt-0.5">12 emails sent · 35 lead scores updated · 8 buyer-listing matches found.</div>
+          </div>
+          <div class="text-[10.5px] text-[#444] flex-shrink-0">6h ago</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /view-notifications -->
+
+
   </div><!-- /scrollable content -->
 </div><!-- /main flex col -->
 
@@ -1328,11 +1734,10 @@ updateTime(); setInterval(updateTime, 60000);
 
 /* ── View toggle ── */
 function showView(v) {
-  ['ai','classic','crm'].forEach(id => {
+  ['ai','classic','crm','marketing','listings','reporting','notifications'].forEach(id => {
     const el = document.getElementById('view-' + id);
     if (el) el.classList.toggle('hidden', id !== v);
   });
-  // Top toggle buttons
   ['ai','classic'].forEach(id => {
     document.getElementById('btn-' + id)?.classList.toggle('active', id === v);
   });
