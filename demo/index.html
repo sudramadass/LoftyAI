@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
 * { font-family: 'Sora', sans-serif; }
 
@@ -250,8 +252,6 @@ body {
 /* ── Live dot ── */
 .live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#c4c4c4; }
 
-/* ── Right sidebar ── */
-#right-sidebar { transition: transform .42s cubic-bezier(.16,1,.3,1); }
 
 /* ── Divider ── */
 .soft-divider { height:1px; background:rgba(255,255,255,.05); }
@@ -429,9 +429,6 @@ body {
         <span class="material-symbols-outlined text-[18px]">notifications</span>
         <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#c4c4c4]"></span>
       </button>
-      <button onclick="openSidebar()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-[#aaa] hover:bg-white/5 transition-colors">
-        <span class="material-symbols-outlined text-[18px]">menu</span>
-      </button>
     </div>
   </div>
 
@@ -442,28 +439,72 @@ body {
   <!-- ══════════════════════════════════
        AI MORNING BRIEFING VIEW
   ══════════════════════════════════ -->
-  <div id="view-ai">
-  <div class="flex gap-5 max-w-[1080px]">
+  <div id="view-ai" class="w-full">
 
-    <!-- ── MAIN COLUMN ── -->
-    <div class="flex-1 min-w-0">
-
-      <!-- Header -->
-      <div class="flex flex-wrap items-start justify-between gap-4 mb-5 f1">
-        <div>
-          <h1 class="text-[28px] font-bold text-white leading-tight tracking-tight mb-1">Good morning, Sarah.</h1>
-          <p class="text-[13px] text-[#666]">Your AI worked overnight. Here's what moves the needle today.</p>
-        </div>
-        <!-- AI overnight badge -->
-        <div class="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:opacity-80 transition-opacity"
-             style="background:#1e1e1e;border:1px solid rgba(180,180,180,.2);">
-          <div class="bob">
-            <span class="material-symbols-outlined text-[20px]" style="color:#c4c4c4;">nights_stay</span>
-          </div>
+      <!-- ── Cinematic Hero Banner ── -->
+      <div id="hero-banner" class="relative w-full rounded-2xl overflow-hidden mb-5" style="height:280px;">
+        <!-- Particle canvas -->
+        <canvas id="hero-particles" class="absolute inset-0 w-full h-full" style="pointer-events:none;z-index:1;"></canvas>
+        <!-- Ken Burns image -->
+        <div id="hero-img" class="absolute inset-0 w-full h-full" style="
+          background-image: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=80');
+          background-size: cover; background-position: center;
+          transform-origin: center center;
+        "></div>
+        <!-- Gradient overlay -->
+        <div class="absolute inset-0" style="background:linear-gradient(135deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.28) 60%,rgba(0,0,0,.55) 100%);"></div>
+        <!-- Bottom fade -->
+        <div class="absolute bottom-0 left-0 right-0 h-24" style="background:linear-gradient(to top,#111111,transparent);"></div>
+        <!-- Content -->
+        <div class="absolute inset-0 flex flex-col justify-between p-7">
           <div>
-            <div class="text-[11px] text-[#666]">AI completed overnight</div>
-            <div class="text-[13px] font-semibold text-white">47 automated actions</div>
+            <div id="hero-label" class="text-[10px] font-bold uppercase tracking-[.2em] mb-3" style="color:rgba(255,255,255,.45);">AI Morning Briefing</div>
+            <h1 id="hero-title" class="text-[32px] font-bold text-white leading-tight tracking-tight mb-1">Good morning, Sarah.</h1>
+            <p id="hero-sub" class="text-[13px]" style="color:rgba(255,255,255,.5);">Your AI worked overnight. Here's what moves the needle today.</p>
           </div>
+          <!-- AI badge -->
+          <div class="flex items-center justify-between">
+            <div id="hero-badge" class="flex items-center gap-3 px-4 py-2.5 rounded-xl" style="background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);">
+              <div class="bob"><span class="material-symbols-outlined text-[18px]" style="color:#c4c4c4;">nights_stay</span></div>
+              <div>
+                <div class="text-[10.5px]" style="color:rgba(255,255,255,.5);">AI completed overnight</div>
+                <div class="text-[13px] font-semibold text-white">47 automated actions</div>
+              </div>
+            </div>
+            <!-- Stat pills inside hero -->
+            <div class="hidden md:flex gap-3">
+              <div class="px-4 py-2 rounded-xl text-center" style="background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);">
+                <div class="text-[20px] font-bold text-white stat-count" data-target="25">0</div>
+                <div class="text-[10px]" style="color:rgba(255,255,255,.4);">Total Leads</div>
+              </div>
+              <div class="px-4 py-2 rounded-xl text-center" style="background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);">
+                <div class="text-[20px] font-bold text-white stat-count" data-target="47">0</div>
+                <div class="text-[10px]" style="color:rgba(255,255,255,.4);">AI Actions</div>
+              </div>
+              <div class="px-4 py-2 rounded-xl text-center" style="background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);">
+                <div class="text-[20px] font-bold text-white stat-count" data-target="4">0</div>
+                <div class="text-[10px]" style="color:rgba(255,255,255,.4);">Tasks Due</div>
+              </div>
+              <div class="px-4 py-2 rounded-xl text-center" style="background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);">
+                <div class="text-[20px] font-bold text-white stat-count" data-target="2">0</div>
+                <div class="text-[10px]" style="color:rgba(255,255,255,.4);">Showings</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Snapshot stats row (mobile) -->
+      <div class="grid grid-cols-2 gap-3 mb-4 md:hidden">
+        <div class="stat-tile">
+          <div class="text-[20px] font-bold text-white">25</div>
+          <div class="text-[11px] text-[#555] mt-0.5">Total Leads</div>
+          <div class="text-[10.5px] mt-1 font-medium" style="color:#999999;">9 untouched</div>
+        </div>
+        <div class="stat-tile">
+          <div class="text-[20px] font-bold text-white">4</div>
+          <div class="text-[11px] text-[#555] mt-0.5">Tasks Due</div>
+          <div class="text-[10.5px] mt-1 text-[#555]">Today</div>
         </div>
       </div>
 
@@ -513,6 +554,115 @@ body {
               <span class="text-[10.5px] font-bold uppercase tracking-wider text-[#aaa]">PLANNED</span>
             </div>
             <p class="text-[12.5px] text-[#666] leading-relaxed">Next: Prepare showing outreach for high-intent buyers. Escalate unresolved risks if docs not received by 2 PM.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Market Ticker Strip ── -->
+      <div class="mb-4 overflow-hidden rounded-xl" style="background:#141414;border:1px solid rgba(255,255,255,.06);">
+        <div id="ticker-track" class="flex items-center gap-8 py-2.5 px-4 whitespace-nowrap" style="width:max-content;">
+          <span class="text-[10.5px] font-bold uppercase tracking-widest text-[#444] mr-2">LIVE</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">30-yr Fixed <span class="text-[#22c55e]">6.82%</span> <span class="text-[#555] font-normal">↓0.04</span></span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">Scottsdale Median <span class="text-white">$748K</span> <span class="text-[#22c55e]">↑2.1%</span></span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">Tempe DOM <span class="text-white">18 days</span></span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">Phoenix Inventory <span class="text-[#ef4444]">↓12%</span> vs last yr</span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">New Listings Today <span class="text-white">34</span></span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">30-yr Fixed <span class="text-[#22c55e]">6.82%</span> <span class="text-[#555] font-normal">↓0.04</span></span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">Scottsdale Median <span class="text-white">$748K</span> <span class="text-[#22c55e]">↑2.1%</span></span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">Tempe DOM <span class="text-white">18 days</span></span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">Phoenix Inventory <span class="text-[#ef4444]">↓12%</span> vs last yr</span>
+          <span class="text-[#333]">|</span>
+          <span class="text-[11.5px] font-semibold text-[#aaa]">New Listings Today <span class="text-white">34</span></span>
+        </div>
+      </div>
+
+      <!-- ── Live Revenue Chart ── -->
+      <div class="card p-5 mb-4" id="revenue-section">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <div class="text-[10.5px] font-bold uppercase tracking-widest text-[#555] mb-1">Revenue Forecast</div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-[28px] font-bold text-white" id="rev-total">$0</span>
+              <span class="text-[12px] font-semibold" style="color:#22c55e;">↑ 14.2% vs last month</span>
+            </div>
+          </div>
+          <div class="flex gap-1.5">
+            <button class="rev-range-btn filter-pill active" data-range="7">7D</button>
+            <button class="rev-range-btn filter-pill" data-range="30">30D</button>
+            <button class="rev-range-btn filter-pill" data-range="90">90D</button>
+          </div>
+        </div>
+        <div style="height:200px;position:relative;">
+          <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="flex items-center gap-2 mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.05);">
+          <div class="live-dot pulse"></div>
+          <span class="text-[11px] text-[#555]">Live — new data every 3s</span>
+          <div class="ml-auto flex gap-6">
+            <div class="text-right">
+              <div class="text-[10.5px] text-[#555]">Projected close</div>
+              <div class="text-[13px] font-semibold text-white">$284,000</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10.5px] text-[#555]">Pipeline value</div>
+              <div class="text-[13px] font-semibold text-white">$1.2M</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Animated Ring Metrics ── -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="ring-metrics">
+        <div class="card p-5 flex flex-col items-center gap-3">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="88" data-key="response">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+            <circle id="ring-fill-response" cx="40" cy="40" r="32" fill="none" stroke="#22c55e" stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
+          </svg>
+          <div class="text-center">
+            <div id="ring-label-response" class="text-[18px] font-bold text-white ring-label">0%</div>
+            <div class="text-[10.5px] text-[#555]">Response Rate</div>
+          </div>
+        </div>
+        <div class="card p-5 flex flex-col items-center gap-3">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="63" data-key="pipeline">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+            <circle id="ring-fill-pipeline" cx="40" cy="40" r="32" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
+          </svg>
+          <div class="text-center">
+            <div id="ring-label-pipeline" class="text-[18px] font-bold text-white ring-label">0%</div>
+            <div class="text-[10.5px] text-[#555]">Pipeline Health</div>
+          </div>
+        </div>
+        <div class="card p-5 flex flex-col items-center gap-3">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="91" data-key="accuracy">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+            <circle id="ring-fill-accuracy" cx="40" cy="40" r="32" fill="none" stroke="#a855f7" stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
+          </svg>
+          <div class="text-center">
+            <div id="ring-label-accuracy" class="text-[18px] font-bold text-white ring-label">0%</div>
+            <div class="text-[10.5px] text-[#555]">AI Accuracy</div>
+          </div>
+        </div>
+        <div class="card p-5 flex flex-col items-center gap-3">
+          <svg width="80" height="80" viewBox="0 0 80 80" class="ring-svg" data-pct="74" data-key="close">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+            <circle id="ring-fill-close" cx="40" cy="40" r="32" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" class="ring-fill"/>
+          </svg>
+          <div class="text-center">
+            <div id="ring-label-close" class="text-[18px] font-bold text-white ring-label">0%</div>
+            <div class="text-[10.5px] text-[#555]">Close Rate</div>
           </div>
         </div>
       </div>
@@ -844,105 +994,28 @@ body {
       </div>
 
 
-      <!-- Footer note -->
-      <div class="flex items-center gap-2 text-[11.5px] text-[#555] f5">
-        <span class="material-symbols-outlined text-[14px] flex-shrink-0" style="color:#c4c4c4;">auto_awesome</span>
-        AI analyzed 25 leads, 2 active transactions, and 4 pending tasks to surface these 3 priorities.
-        <a href="#" class="ml-1 font-semibold hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full pipeline →</a>
-      </div>
-
-    </div><!-- /main col -->
-
-
-    <!-- ── RIGHT STICKY RAIL ── -->
-    <div class="w-[240px] flex-shrink-0 hidden lg:block">
-    <div class="sticky top-0 space-y-3">
-
-      <!-- Today's Snapshot -->
-      <div class="card p-4 f1">
-        <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">Today's Snapshot</div>
-        <div class="grid grid-cols-2 gap-2">
-          <div class="stat-tile">
-            <div class="text-[20px] font-bold text-white">25</div>
-            <div class="text-[11px] text-[#555] mt-0.5">Total Leads</div>
-            <div class="text-[10.5px] mt-1 font-medium" style="color:#999999;">9 untouched</div>
-          </div>
-          <div class="stat-tile">
-            <div class="text-[20px] font-bold text-white">2</div>
-            <div class="text-[11px] text-[#555] mt-0.5">Transactions</div>
-            <div class="text-[10.5px] mt-1 font-medium" style="color:#888888;">2 near deadline</div>
-          </div>
-          <div class="stat-tile">
-            <div class="text-[20px] font-bold text-white">4</div>
-            <div class="text-[11px] text-[#555] mt-0.5">Tasks Due</div>
-            <div class="text-[10.5px] mt-1 text-[#555]">Today</div>
-          </div>
-          <div class="stat-tile">
-            <div class="text-[20px] font-bold text-white">2</div>
-            <div class="text-[11px] text-[#555] mt-0.5">Showings</div>
-            <div class="text-[10.5px] mt-1 text-[#555]">2pm + 4:30pm</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI Worked Overnight -->
-      <div class="card p-4 f2">
-        <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">AI Worked Overnight</div>
-        <div class="space-y-3">
-          <div class="flex items-center gap-2.5">
-            <div class="icon-tile" style="background:rgba(180,180,180,.1);">
-              <span class="material-symbols-outlined text-[16px]" style="color:#c4c4c4;">mail</span>
-            </div>
-            <div>
-              <div class="text-[12.5px] font-medium text-white">12 follow-up emails</div>
-              <div class="text-[11px] text-[#555]">Personalized by Smart Plans</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2.5">
-            <div class="icon-tile" style="background:rgba(160,160,160,.1);">
-              <span class="material-symbols-outlined text-[16px]" style="color:#aaaaaa;">bar_chart</span>
-            </div>
-            <div>
-              <div class="text-[12.5px] font-medium text-white">35 lead score updates</div>
-              <div class="text-[11px] text-[#555]">Based on site activity</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2.5">
-            <div class="icon-tile" style="background:rgba(170,170,170,.1);">
-              <span class="material-symbols-outlined text-[16px]" style="color:#bbbbbb;">group</span>
-            </div>
-            <div>
-              <div class="text-[12.5px] font-medium text-white">8 buyer-listing matches</div>
-              <div class="text-[11px] text-[#555]">Hot Sheet auto-matched</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Hot Sheets -->
-      <div class="card p-4 f3">
+      <div class="card p-5 mb-4 f5">
         <div class="flex items-center justify-between mb-3">
           <div class="text-[10px] font-bold uppercase tracking-widest text-[#555]">Hot Sheets · Live MLS</div>
           <span class="live-dot pulse"></span>
         </div>
-        <div class="space-y-2.5">
-          <div class="flex items-start justify-between gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,.03);">
             <div>
               <div class="text-[12.5px] font-medium text-white">New Listings · Scottsdale</div>
               <div class="text-[11px] text-[#555] mt-0.5">3 match Brandon Allen</div>
             </div>
             <span class="chip flex-shrink-0" style="background:rgba(180,180,180,.12);color:#c4c4c4;">+12</span>
           </div>
-          <div class="soft-divider"></div>
-          <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,.03);">
             <div>
               <div class="text-[12.5px] font-medium text-white">Price Reduced · Mesa</div>
               <div class="text-[11px] text-[#555] mt-0.5">2 match Samuel Scott</div>
             </div>
             <span class="chip flex-shrink-0" style="background:rgba(150,150,150,.12);color:#999999;">5</span>
           </div>
-          <div class="soft-divider"></div>
-          <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,.03);">
             <div>
               <div class="text-[12.5px] font-medium text-white">Off-Market · Surprise</div>
               <div class="text-[11px] text-[#555] mt-0.5">3 match Kevin Lee (investor)</div>
@@ -952,17 +1025,20 @@ body {
         </div>
       </div>
 
-    </div>
-    </div><!-- /right rail -->
+      <!-- Footer note -->
+      <div class="flex items-center gap-2 text-[11.5px] text-[#555] f5">
+        <span class="material-symbols-outlined text-[14px] flex-shrink-0" style="color:#c4c4c4;">auto_awesome</span>
+        AI analyzed 25 leads, 2 active transactions, and 4 pending tasks to surface these 3 priorities.
+        <a href="#" class="ml-1 font-semibold hover:opacity-70 transition-opacity" style="color:#c4c4c4;">View full pipeline →</a>
+      </div>
 
-  </div><!-- /flex gap -->
   </div><!-- /view-ai -->
 
 
   <!-- ══════════════════════════════════
        CLASSIC DASHBOARD VIEW
   ══════════════════════════════════ -->
-  <div id="view-classic" class="hidden max-w-[1080px]">
+  <div id="view-classic" class="hidden w-full">
 
     <div class="mb-4 px-4 py-3 rounded-xl flex flex-wrap items-center gap-3 f1"
          style="background:rgba(150,150,150,.08);border:1px solid rgba(150,150,150,.2);">
@@ -1071,7 +1147,7 @@ body {
   <!-- ══════════════════════════════════
        CRM VIEW
   ══════════════════════════════════ -->
-  <div id="view-crm" class="hidden max-w-[1080px]">
+  <div id="view-crm" class="hidden w-full">
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
       <div>
@@ -1119,7 +1195,7 @@ body {
   <!-- ══════════════════════════════════
        MARKETING VIEW
   ══════════════════════════════════ -->
-  <div id="view-marketing" class="hidden max-w-[1080px]">
+  <div id="view-marketing" class="hidden w-full">
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
       <div>
@@ -1231,7 +1307,7 @@ body {
   <!-- ══════════════════════════════════
        LISTINGS VIEW
   ══════════════════════════════════ -->
-  <div id="view-listings" class="hidden max-w-[1080px]">
+  <div id="view-listings" class="hidden w-full">
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
       <div>
@@ -1347,7 +1423,7 @@ body {
   <!-- ══════════════════════════════════
        REPORTING VIEW
   ══════════════════════════════════ -->
-  <div id="view-reporting" class="hidden max-w-[1080px]">
+  <div id="view-reporting" class="hidden w-full">
 
     <div class="mb-5 f1">
       <h1 class="text-[22px] font-bold text-white mb-1">Reporting</h1>
@@ -1437,7 +1513,7 @@ body {
   <!-- ══════════════════════════════════
        NOTIFICATIONS VIEW
   ══════════════════════════════════ -->
-  <div id="view-notifications" class="hidden max-w-[1080px]">
+  <div id="view-notifications" class="hidden w-full">
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-5 f1">
       <div>
@@ -1526,85 +1602,7 @@ body {
 </div><!-- /main flex col -->
 
 
-<!-- ═══════════════════════════════════
-     OVERLAY + RIGHT SIDEBAR
-═══════════════════════════════════ -->
-<div class="fixed inset-0 z-40 opacity-0 pointer-events-none transition-opacity duration-500" id="sidebar-overlay"
-     onclick="closeSidebar()" style="background:rgba(0,0,0,.6);backdrop-filter:blur(4px);"></div>
 
-<aside id="right-sidebar"
-       class="fixed top-0 right-0 h-screen w-full max-w-sm z-50 translate-x-full overflow-y-auto p-6"
-       style="background:#141414;border-left:1px solid rgba(255,255,255,.08);">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-[17px] font-bold text-white">Overview</h2>
-    <button onclick="closeSidebar()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#666] hover:text-white hover:bg-white/5 transition-colors">
-      <span class="material-symbols-outlined text-[18px]">close</span>
-    </button>
-  </div>
-  <div class="flex flex-col gap-4">
-
-    <div class="card-sm p-4">
-      <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">AI Completed Overnight</div>
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(180,180,180,.12);border:1px solid rgba(180,180,180,.2);">
-          <span class="material-symbols-outlined text-[18px]" style="color:#c4c4c4;">auto_awesome</span>
-        </div>
-        <div>
-          <div class="text-[20px] font-bold text-white">47</div>
-          <div class="text-[11px] text-[#555]">Automated Actions</div>
-        </div>
-      </div>
-      <div class="space-y-1.5 text-[12px] text-[#777]">
-        <div class="flex justify-between"><span>Emails sent</span><span class="font-semibold text-white">12</span></div>
-        <div class="flex justify-between"><span>Score updates</span><span class="font-semibold text-white">35</span></div>
-        <div class="flex justify-between"><span>New matches</span><span class="font-semibold text-white">8</span></div>
-      </div>
-    </div>
-
-    <div class="card-sm p-4">
-      <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-3">Today's Snapshot</div>
-      <div class="grid grid-cols-2 gap-2">
-        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">23</div><div class="text-[11px] text-[#555]">Total Leads</div></div>
-        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">3</div><div class="text-[11px] text-[#555]">Transactions</div></div>
-        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">4</div><div class="text-[11px] text-[#555]">Tasks Due</div></div>
-        <div class="stat-tile"><div class="text-[18px] font-bold text-white mb-0.5">2</div><div class="text-[11px] text-[#555]">Showings</div></div>
-      </div>
-    </div>
-
-    <div class="card-sm p-4">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-[10px] font-bold uppercase tracking-widest text-[#555]">Hot Sheets (Live MLS)</div>
-        <span class="live-dot pulse"></span>
-      </div>
-      <div class="space-y-2.5 text-[12px]">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full" style="background:#c4c4c4;"></span><span class="text-white">New Listings</span><span class="text-[#555]">Scottsdale</span></div>
-          <span class="font-bold" style="color:#c4c4c4;">+15</span>
-        </div>
-        <div class="soft-divider"></div>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#999]"></span><span class="text-white">Price Reduced</span><span class="text-[#555]">Tempe</span></div>
-          <span class="font-bold text-[#999]">5</span>
-        </div>
-        <div class="soft-divider"></div>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#aaa]"></span><span class="text-white">Off-Market</span><span class="text-[#555]">Mesa</span></div>
-          <span class="font-bold text-[#aaa]">3</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card-sm p-4">
-      <div class="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-2">AI Prediction Accuracy</div>
-      <div class="flex items-end gap-3 mb-2">
-        <span class="text-[36px] font-bold text-white leading-none breathe">87%</span>
-        <span class="text-[11px] font-semibold mb-1" style="color:#bbbbbb;">↑ +4% vs last month</span>
-      </div>
-      <div class="conf-track"><div class="conf-fill" style="width:87%;"></div></div>
-    </div>
-
-  </div>
-</aside>
 
 
 <!-- Floating AI button -->
@@ -1734,14 +1732,37 @@ updateTime(); setInterval(updateTime, 60000);
 
 /* ── View toggle ── */
 function showView(v) {
-  ['ai','classic','crm','marketing','listings','reporting','notifications'].forEach(id => {
+  const views = ['ai','classic','crm','marketing','listings','reporting','notifications'];
+  views.forEach(id => {
     const el = document.getElementById('view-' + id);
-    if (el) el.classList.toggle('hidden', id !== v);
+    if (!el) return;
+    if (id === v) {
+      el.classList.remove('hidden');
+      gsap.fromTo(el,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.38, ease: 'power2.out', clearProps: 'all',
+          onComplete() { gsapAnimateCards(el); }
+        }
+      );
+    } else {
+      el.classList.add('hidden');
+    }
   });
   ['ai','classic'].forEach(id => {
     document.getElementById('btn-' + id)?.classList.toggle('active', id === v);
   });
   if (v === 'crm') renderLeads();
+}
+
+function gsapAnimateCards(container) {
+  const cards = container.querySelectorAll('.card, .card-sm, .classic-card, .chart-card, .stat-tile, .card-lift');
+  if (!cards.length) return;
+  gsap.fromTo(cards,
+    { opacity: 0, y: 18 },
+    { opacity: 1, y: 0, duration: 0.42, ease: 'power2.out', stagger: 0.055, clearProps: 'all',
+      onComplete() { ScrollTrigger.refresh(); }
+    }
+  );
 }
 
 function setNavActive(el) {
@@ -1765,20 +1786,6 @@ function toggleWhy(id, btn) {
 }
 
 /* ── Right sidebar ── */
-function openSidebar() {
-  const s = document.getElementById('right-sidebar');
-  const o = document.getElementById('sidebar-overlay');
-  s.classList.remove('translate-x-full');
-  o.classList.remove('pointer-events-none');
-  setTimeout(() => o.classList.remove('opacity-0'), 10);
-}
-function closeSidebar() {
-  const s = document.getElementById('right-sidebar');
-  const o = document.getElementById('sidebar-overlay');
-  s.classList.add('translate-x-full');
-  o.classList.add('opacity-0');
-  setTimeout(() => o.classList.add('pointer-events-none'), 420);
-}
 
 /* ════════════════════════════════════
    CRM VIEW
@@ -2013,13 +2020,13 @@ function initCharts() {
     beforeDraw(chart) {
       const centerText = chart.config.options.plugins.centerText;
       if (!centerText) return;
-      const { ctx, chartArea: { width, height } } = chart;
+      const { ctx, chartArea: { left, right, top, bottom } } = chart;
       ctx.save();
       ctx.fillStyle = centerText.color || '#ffffff';
       ctx.font = centerText.font || '700 16px Sora, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(centerText.text, width / 2, height / 2);
+      ctx.fillText(centerText.text, (left + right) / 2, (top + bottom) / 2);
       ctx.restore();
     }
   });
@@ -2192,6 +2199,314 @@ function initCharts() {
 }
 
 initCharts();
+
+/* ── GSAP: Register ScrollTrigger ── */
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── Page-load entrance ── */
+gsap.from('.sidebar', { x: -24, opacity: 0, duration: 0.55, ease: 'power3.out' });
+gsap.from('.top-strip', { y: -16, opacity: 0, duration: 0.45, ease: 'power3.out', delay: 0.08 });
+
+/* ── Ken Burns on hero image ── */
+gsap.to('#hero-img', {
+  scale: 1.12,
+  duration: 18,
+  ease: 'none',
+  repeat: -1,
+  yoyo: true
+});
+
+/* ── Hero content entrance ── */
+const heroTL = gsap.timeline({ delay: 0.25 });
+heroTL
+  .from('#hero-label', { opacity: 0, y: 10, duration: 0.5, ease: 'power2.out' })
+  .from('#hero-title', { opacity: 0, y: 18, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+  .from('#hero-sub',   { opacity: 0, y: 12, duration: 0.5, ease: 'power2.out' }, '-=0.35')
+  .from('#hero-badge', { opacity: 0, y: 12, duration: 0.45, ease: 'power2.out' }, '-=0.25');
+
+/* ── Stat counters ── */
+document.querySelectorAll('.stat-count').forEach(el => {
+  const target = +el.dataset.target;
+  gsap.to({ val: 0 }, {
+    val: target,
+    duration: 1.8,
+    delay: 0.9,
+    ease: 'power2.out',
+    onUpdate() { el.textContent = Math.round(this.targets()[0].val); }
+  });
+});
+
+/* ── ScrollTrigger: scroll container is the main scroller ── */
+const scroller = document.querySelector('.flex-1.overflow-y-auto');
+ScrollTrigger.defaults({ scroller });
+
+/* ── Scroll-reveal for all cards ── */
+function setupScrollReveal() {
+  gsap.utils.toArray('#view-ai .card, #view-ai .card-sm, #view-ai .classic-card, #view-ai .chart-card, #view-ai .stat-tile, #view-ai .card-lift').forEach((el, i) => {
+    gsap.from(el, {
+      scrollTrigger: { trigger: el, scroller, start: 'top 92%', toggleActions: 'play none none none' },
+      opacity: 0,
+      y: 28,
+      duration: 0.55,
+      ease: 'power2.out',
+      delay: (i % 4) * 0.06,
+      clearProps: 'all'
+    });
+  });
+}
+setupScrollReveal();
+
+/* ── Parallax on property images inside cards ── */
+gsap.utils.toArray('.card-lift img, .card img').forEach(img => {
+  gsap.to(img, {
+    yPercent: -12,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: img.closest('.card-lift, .card'),
+      scroller,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true
+    }
+  });
+});
+
+/* ══════════════════════════════════
+   PARTICLE CANVAS (hero)
+══════════════════════════════════ */
+(function initParticles() {
+  const canvas = document.getElementById('hero-particles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+  resize();
+  new ResizeObserver(resize).observe(canvas);
+
+  const pts = Array.from({length: 48}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - .5) * .35,
+    vy: (Math.random() - .5) * .35,
+    r: Math.random() * 1.4 + .4,
+    o: Math.random() * .35 + .08
+  }));
+
+  function tick() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${p.o})`;
+      ctx.fill();
+    });
+    pts.forEach((a, i) => {
+      for (let j = i + 1; j < pts.length; j++) {
+        const b = pts[j];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 90) {
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(255,255,255,${.06 * (1 - d / 90)})`;
+          ctx.lineWidth = .6;
+          ctx.stroke();
+        }
+      }
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ══════════════════════════════════
+   MARKET TICKER (infinite scroll)
+══════════════════════════════════ */
+(function initTicker() {
+  const track = document.getElementById('ticker-track');
+  if (!track) return;
+  let x = 0;
+  const speed = 0.6;
+  function tickerFrame() {
+    x -= speed;
+    const w = track.scrollWidth / 2;
+    if (Math.abs(x) >= w) x = 0;
+    track.style.transform = `translateX(${x}px)`;
+    requestAnimationFrame(tickerFrame);
+  }
+  tickerFrame();
+})();
+
+/* ══════════════════════════════════
+   LIVE REVENUE CHART
+══════════════════════════════════ */
+(function initRevenueChart() {
+  const baseData = [42000,55000,48000,67000,71000,63000,80000,74000,88000,92000,85000,105000,98000,112000];
+  const labels   = baseData.map((_, i) => `Day ${i+1}`);
+
+  function fmtDollar(v) {
+    return v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v}`;
+  }
+
+  const revEl = document.getElementById('rev-total');
+  function animateRevTotal(target) {
+    gsap.to({val: 0}, { val: target, duration: 1.6, ease: 'power2.out',
+      onUpdate() { if(revEl) revEl.textContent = fmtDollar(Math.round(this.targets()[0].val)); }
+    });
+  }
+  animateRevTotal(112000);
+
+  const gradient = (ctx, area) => {
+    const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0, 'rgba(34,197,94,.25)');
+    g.addColorStop(1, 'rgba(34,197,94,0)');
+    return g;
+  };
+
+  const revChart = new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Revenue',
+        data: [...baseData],
+        borderColor: '#22c55e',
+        borderWidth: 2.5,
+        pointRadius: 3,
+        pointBackgroundColor: '#22c55e',
+        tension: 0.4,
+        fill: true,
+        backgroundColor: ctx => gradient(ctx.chart.ctx, ctx.chart.chartArea || {top:0,bottom:200})
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 900, easing: 'easeInOutCubic' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#111', titleColor: '#fff', bodyColor: '#aaa', borderColor: '#2a2a2a', borderWidth: 1,
+          callbacks: { label: ctx => ` $${ctx.raw.toLocaleString()}` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#555', font: { size: 10 } } },
+        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#555', font: { size: 10 },
+          callback: v => `$${(v/1000).toFixed(0)}K` } }
+      }
+    }
+  });
+
+  /* ── Ring update helper ── */
+  function animateRing(key, fromPct, toPct) {
+    const fill  = document.getElementById('ring-fill-' + key);
+    const label = document.getElementById('ring-label-' + key);
+    if (!fill || !label) return;
+    const circ = 201;
+    gsap.to({ v: fromPct }, {
+      v: toPct, duration: 1.2, ease: 'power2.inOut',
+      onUpdate() {
+        const v = this.targets()[0].v;
+        fill.setAttribute('stroke-dashoffset', circ - (circ * v / 100));
+        label.textContent = Math.round(v) + '%';
+      }
+    });
+  }
+
+  /* Current ring values (updated each tick) */
+  const ringVals = { response: 88, pipeline: 63, accuracy: 91, close: 74 };
+
+  /* Live update — add new data point every 3s + nudge rings */
+  setInterval(() => {
+    const last = revChart.data.datasets[0].data.at(-1);
+    const next = Math.round(last * (0.92 + Math.random() * .16));
+    const dayNum = revChart.data.labels.length + 1;
+    revChart.data.labels.push(`Day ${dayNum}`);
+    revChart.data.datasets[0].data.push(next);
+    if (revChart.data.labels.length > 20) {
+      revChart.data.labels.shift();
+      revChart.data.datasets[0].data.shift();
+    }
+    revChart.update('active');
+    animateRevTotal(next);
+
+    /* Nudge each ring ±3–6 pts, clamped to 30–99 */
+    ['response','pipeline','accuracy','close'].forEach(key => {
+      const prev = ringVals[key];
+      const delta = (Math.random() - .48) * 8;
+      const next  = Math.min(99, Math.max(30, Math.round(prev + delta)));
+      animateRing(key, prev, next);
+      ringVals[key] = next;
+    });
+  }, 3000);
+
+  /* Range buttons */
+  document.querySelectorAll('.rev-range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.rev-range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const n = +btn.dataset.range;
+      const slice = baseData.slice(-n);
+      revChart.data.labels = slice.map((_, i) => `Day ${i+1}`);
+      revChart.data.datasets[0].data = slice;
+      revChart.update();
+      animateRevTotal(slice.at(-1));
+    });
+  });
+})();
+
+/* ══════════════════════════════════
+   ANIMATED SVG RINGS
+══════════════════════════════════ */
+document.querySelectorAll('.ring-svg').forEach(svg => {
+  const pct  = +svg.dataset.pct;
+  const ring = svg.querySelector('.ring-fill');
+  const label = svg.closest('.card').querySelector('.ring-label');
+  const circ = 201;
+
+  ScrollTrigger.create({
+    trigger: svg,
+    scroller,
+    start: 'top 88%',
+    onEnter() {
+      gsap.to({ v: 0 }, {
+        v: pct, duration: 1.6, ease: 'power2.out',
+        onUpdate() {
+          const v = this.targets()[0].v;
+          ring.setAttribute('stroke-dashoffset', circ - (circ * v / 100));
+          if (label) label.textContent = Math.round(v) + '%';
+        }
+      });
+    },
+    once: true
+  });
+});
+
+/* ══════════════════════════════════
+   3-D CARD TILT (mouse tracking)
+══════════════════════════════════ */
+(function init3DTilt() {
+  const cards = document.querySelectorAll('.card, .card-sm, .chart-card, .classic-card');
+  cards.forEach(card => {
+    card.style.transformStyle = 'preserve-3d';
+    card.style.willChange = 'transform';
+    const xTo = gsap.quickTo(card, 'rotateX', { duration: .35, ease: 'power2.out' });
+    const yTo = gsap.quickTo(card, 'rotateY', { duration: .35, ease: 'power2.out' });
+
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - .5;
+      const y = (e.clientY - r.top)  / r.height - .5;
+      xTo(-y * 7);
+      yTo( x * 7);
+      gsap.to(card, { scale: 1.015, duration: .25, ease: 'power2.out' });
+    });
+    card.addEventListener('mouseleave', () => {
+      xTo(0); yTo(0);
+      gsap.to(card, { scale: 1, duration: .3, ease: 'power2.inOut' });
+    });
+  });
+})();
 
 /* ────────────────────────────────
    CHART CALLOUT HANDLERS
